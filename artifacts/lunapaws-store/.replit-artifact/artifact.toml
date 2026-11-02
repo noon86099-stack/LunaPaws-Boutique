@@ -1,0 +1,28 @@
+kind = "web"
+previewPath = "/"
+title = "LUNAPAWS Store"
+description = "A standalone responsive storefront for premium cat accessories, with local cart and favorites, searchable products, category filters, product details, demo checkout, and the brand's uploaded advertisement video."
+version = "1.0.0"
+id = "artifacts/lunapaws-store"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 23813
+
+[services.development]
+run = "pnpm --filter @workspace/lunapaws-store run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/lunapaws-store", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/lunapaws-store/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "23813"
+BASE_PATH = "/"

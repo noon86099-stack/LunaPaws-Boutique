@@ -1,0 +1,90 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap');
+@import 'tailwindcss';
+@import 'tw-animate-css';
+@plugin "@tailwindcss/typography";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: hsl(var(--background));
+  --color-foreground: hsl(var(--foreground));
+  --color-border: hsl(var(--border));
+  --color-input: hsl(var(--input));
+  --color-ring: hsl(var(--ring));
+  --color-card: hsl(var(--card));
+  --color-card-foreground: hsl(var(--card-foreground));
+  --color-primary: hsl(var(--primary));
+  --color-primary-foreground: hsl(var(--primary-foreground));
+  --color-secondary: hsl(var(--secondary));
+  --color-secondary-foreground: hsl(var(--secondary-foreground));
+  --color-muted: hsl(var(--muted));
+  --color-muted-foreground: hsl(var(--muted-foreground));
+  --color-accent: hsl(var(--accent));
+  --color-accent-foreground: hsl(var(--accent-foreground));
+  --color-destructive: hsl(var(--destructive));
+  --color-destructive-foreground: hsl(var(--destructive-foreground));
+  --font-sans: var(--app-font-sans);
+  --font-serif: var(--app-font-serif);
+  --font-mono: var(--app-font-mono);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+}
+
+:root {
+  --background: 36 100% 97%;
+  --foreground: 150 14% 20%;
+  --card: 36 100% 98%;
+  --card-foreground: 150 14% 20%;
+  --border: 32 23% 87%;
+  --input: 32 23% 87%;
+  --primary: 163 33% 21%;
+  --primary-foreground: 36 100% 97%;
+  --secondary: 34 36% 92%;
+  --secondary-foreground: 163 33% 21%;
+  --muted: 35 25% 92%;
+  --muted-foreground: 142 7% 48%;
+  --accent: 18 55% 66%;
+  --accent-foreground: 163 33% 21%;
+  --destructive: 2 58% 51%;
+  --destructive-foreground: 36 100% 97%;
+  --ring: 18 55% 66%;
+  --app-font-sans: 'Inter', sans-serif;
+  --app-font-serif: Georgia, serif;
+  --app-font-mono: 'SFMono-Regular', Consolas, monospace;
+  --radius: 0.75rem;
+  --button-outline: rgba(36, 72, 63, .12);
+  --badge-outline: rgba(36, 72, 63, .08);
+  --elevate-1: rgba(36, 72, 63, .03);
+  --elevate-2: rgba(36, 72, 63, .07);
+}
+
+.dark {
+  --background: 160 18% 11%;
+  --foreground: 36 50% 93%;
+  --card: 160 17% 14%;
+  --card-foreground: 36 50% 93%;
+  --border: 160 12% 27%;
+  --input: 160 12% 27%;
+  --primary: 36 61% 78%;
+  --primary-foreground: 160 18% 11%;
+  --secondary: 160 13% 22%;
+  --secondary-foreground: 36 50% 93%;
+  --muted: 160 13% 22%;
+  --muted-foreground: 145 9% 65%;
+  --accent: 18 49% 63%;
+  --accent-foreground: 160 18% 11%;
+  --destructive: 2 55% 57%;
+  --destructive-foreground: 36 50% 93%;
+  --ring: 18 49% 63%;
+}
+
+@layer base {
+  * { @apply border-border; }
+  html { scroll-behavior: smooth; }
+  body {
+    @apply font-sans antialiased bg-background text-foreground;
+    margin: 0;
+  }
+}
