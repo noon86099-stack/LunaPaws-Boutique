@@ -41,7 +41,7 @@ const PRODUCTS: Product[] = [
     description: "A sink-in-soft bouclé nest with a supportive recycled-fibre cushion. Removable cover, made for long afternoon naps.",
     rating: 4.9,
     reviews: 38,
-    image: "https://images.pexels.com/photos/1741205/pexels-photo-1741205.jpeg?auto=compress&cs=tinysrgb&w=1000",
+    image: "/__mockup/images/lunapaws-product-sunday-cloud-bed.jpg",
     tag: "Bestseller",
   },
   {
@@ -52,7 +52,7 @@ const PRODUCTS: Product[] = [
     description: "A deep, grounded green cushion with a quilted cotton shell and a plush, washable inner pad.",
     rating: 4.8,
     reviews: 24,
-    image: "https://images.pexels.com/photos/2071873/pexels-photo-2071873.jpeg?auto=compress&cs=tinysrgb&w=1000",
+    image: "/__mockup/images/lunapaws-product-moss-cushion.jpg",
   },
   {
     id: 3,
@@ -62,7 +62,7 @@ const PRODUCTS: Product[] = [
     description: "A three-piece play set with a felted wool ball, feather wand and a little crinkle moon for curious paws.",
     rating: 4.7,
     reviews: 19,
-    image: "https://images.pexels.com/photos/45201/kitty-cat-kitten-pet-45201.jpeg?auto=compress&cs=tinysrgb&w=1000",
+    image: "/__mockup/images/lunapaws-product-orbit-play-set.jpg",
     tag: "New",
   },
   {
@@ -73,7 +73,7 @@ const PRODUCTS: Product[] = [
     description: "A sculptural, sturdy scratcher wrapped in natural sisal, designed to look lovely in your living room.",
     rating: 4.9,
     reviews: 31,
-    image: "https://images.pexels.com/photos/1170986/pexels-photo-1170986.jpeg?auto=compress&cs=tinysrgb&w=1000",
+    image: "/__mockup/images/lunapaws-product-tumbleweed-scratcher.jpg",
   },
   {
     id: 5,
@@ -83,7 +83,7 @@ const PRODUCTS: Product[] = [
     description: "Soft cotton webbing, a quick-release safety buckle and a tiny brass-tone bell. Easy, everyday comfort.",
     rating: 4.8,
     reviews: 42,
-    image: "https://images.pexels.com/photos/1543793/pexels-photo-1543793.jpeg?auto=compress&cs=tinysrgb&w=1000",
+    image: "/__mockup/images/lunapaws-product-dune-collar.jpg",
     tag: "Made for daily wear",
   },
   {
@@ -94,7 +94,7 @@ const PRODUCTS: Product[] = [
     description: "A cheerful terracotta bow on an adjustable cotton collar, finished with a breakaway clasp.",
     rating: 4.6,
     reviews: 17,
-    image: "https://images.pexels.com/photos/1543793/pexels-photo-1543793.jpeg?auto=compress&cs=tinysrgb&w=1000",
+    image: "/__mockup/images/lunapaws-product-poppy-bow-collar.jpg",
   },
   {
     id: 7,
@@ -104,7 +104,7 @@ const PRODUCTS: Product[] = [
     description: "A gently raised stoneware bowl with a smooth, glazed inside and a weighted base that stays put.",
     rating: 4.9,
     reviews: 27,
-    image: "https://images.pexels.com/photos/2061057/pexels-photo-2061057.jpeg?auto=compress&cs=tinysrgb&w=1000",
+    image: "/__mockup/images/lunapaws-product-pebble-ceramic-bowl.jpg",
     tag: "Small-batch",
   },
   {
@@ -115,7 +115,7 @@ const PRODUCTS: Product[] = [
     description: "A calming sage-green feeder with a shallow maze to make mealtimes a little slower and gentler.",
     rating: 4.8,
     reviews: 21,
-    image: "https://images.pexels.com/photos/1314550/pexels-photo-1314550.jpeg?auto=compress&cs=tinysrgb&w=1000",
+    image: "/__mockup/images/lunapaws-product-sage-slow-bowl.jpg",
   },
 ];
 
