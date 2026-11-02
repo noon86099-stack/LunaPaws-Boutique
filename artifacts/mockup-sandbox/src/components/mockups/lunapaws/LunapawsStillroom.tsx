@@ -137,8 +137,8 @@ export function LunapawsStillroom() {
         .sr-trust b{font-weight:500;color:var(--sr-peach);margin-right:8px}
         .sr-intro{padding:100px 0 81px}
         .sr-intro-grid{display:grid;grid-template-columns:1fr .83fr;align-items:end;gap:70px}
-        .sr-intro h2,.sr-heading h2,.sr-story h2,.sr-letter h2{font:500 clamp(38px,5vw,66px)/1.04 'Playfair Display',Georgia,serif;letter-spacing:-.045em;color:var(--sr-forest);margin:17px 0 0}
-        .sr-intro h2 em,.sr-story h2 em,.sr-letter h2 em{color:#b96e56}
+        .sr-intro h2,.sr-heading h2,.sr-letter h2{font:500 clamp(38px,5vw,66px)/1.04 'Playfair Display',Georgia,serif;letter-spacing:-.045em;color:var(--sr-forest);margin:17px 0 0}
+        .sr-intro h2 em,.sr-letter h2 em{color:#b96e56}
         .sr-intro-copy{font-size:13px;line-height:1.9;color:var(--sr-muted);max-width:410px;margin-bottom:7px}
         .sr-intro-copy a{display:inline-flex;align-items:center;gap:9px;margin-top:18px;color:var(--sr-forest);font-size:10px;font-weight:700;letter-spacing:.09em;text-transform:uppercase}
         .sr-intro-copy svg{width:14px;height:14px}
@@ -186,16 +186,6 @@ export function LunapawsStillroom() {
         .sr-add{border:0;background:none;color:var(--sr-forest);font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;display:flex;gap:7px;align-items:center}
         .sr-add svg{width:14px;height:14px}
         .sr-empty{grid-column:1/-1;padding:45px;text-align:center;border:1px dashed #cfc7ba;color:var(--sr-muted);font-size:12px}
-        .sr-story{padding:100px 0}
-        .sr-story-grid{display:grid;grid-template-columns:1.03fr .97fr;align-items:center;gap:10%}
-        .sr-story-photo{height:490px;position:relative;background:#e5dfd2}
-        .sr-story-photo img{width:100%;height:100%;object-fit:cover}
-        .sr-story-stamp{position:absolute;right:-25px;bottom:25px;max-width:190px;padding:17px 20px;background:var(--sr-forest);color:var(--sr-cream);font:italic 18px/1.35 'Playfair Display',serif}
-        .sr-story-copy{max-width:470px;padding:20px 0}
-        .sr-story-copy h2{font-size:clamp(43px,5vw,67px);margin:19px 0 22px}
-        .sr-story-copy>p{color:var(--sr-muted);font-size:12px;line-height:1.95;margin:0 0 13px}
-        .sr-story-link{display:inline-flex;align-items:center;gap:11px;margin-top:19px;color:var(--sr-forest);font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase}
-        .sr-story-link svg{width:14px;height:14px}
         .sr-note{background:var(--sr-forest);color:var(--sr-cream);padding:76px 0}
         .sr-note-inner{display:flex;align-items:center;justify-content:space-between;gap:50px}
         .sr-note .sr-kicker{color:#f0d7c4}
@@ -243,7 +233,6 @@ export function LunapawsStillroom() {
           .sr-wrap{width:calc(100% - 48px)}.sr-head{padding:0 24px}.sr-nav{gap:19px}
           .sr-hero,.sr-hero-inner{min-height:550px}.sr-hero-sticker{right:5%;top:8%}
           .sr-tile{height:300px}.sr-product-image{height:220px}
-          .sr-story-grid{gap:7%}.sr-story-photo{height:410px}
         }
         @media(max-width:680px){
           .sr-wrap{width:calc(100% - 38px)}.sr-banner{font-size:8px;height:29px}
@@ -265,9 +254,7 @@ export function LunapawsStillroom() {
           .sr-filters{margin:22px 0 17px;gap:6px}.sr-filter{padding:8px 11px;font-size:8px}
           .sr-product-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.sr-product-image{height:clamp(160px,48vw,240px)}
           .sr-product-meta{padding:11px 10px 0;font-size:7px}.sr-product-info{padding:6px 10px 12px}.sr-product-info h3{font-size:15px}.sr-product-info p{font-size:8px}
-          .sr-add{font-size:8px}.sr-story{padding:67px 0}.sr-story-grid{grid-template-columns:1fr;gap:35px}
-          .sr-story-photo{height:360px;margin-right:20px}.sr-story-stamp{right:-20px;bottom:16px;font-size:15px;max-width:160px}
-          .sr-story-copy h2{font-size:50px}.sr-story-copy>p{font-size:11px}
+          .sr-add{font-size:8px}
           .sr-note{padding:57px 0}.sr-note-inner{align-items:flex-start;flex-direction:column;gap:28px}.sr-note h2{font-size:38px}
           .sr-footer{padding:42px 0 20px}.sr-footer-main{grid-template-columns:1fr 1fr;gap:31px 20px;padding-bottom:35px}.sr-footer-brand{grid-column:1/-1}
           .sr-footer-bottom{font-size:7px;gap:10px;letter-spacing:.06em}
@@ -283,7 +270,6 @@ export function LunapawsStillroom() {
         <nav className={`sr-nav ${mobileNav ? "open" : ""}`} aria-label="Main navigation">
           <a href="#collection" onClick={(e) => { e.preventDefault(); scrollTo("collection"); }}>The collection</a>
           <a href="#shop" onClick={(e) => { e.preventDefault(); scrollTo("shop"); }}>Shop all</a>
-          <a href="#story" onClick={(e) => { e.preventDefault(); scrollTo("story"); }}>Our little story</a>
           <a href="#letter" onClick={(e) => { e.preventDefault(); scrollTo("letter"); }}>The good letter</a>
         </nav>
         <div className="sr-actions">
@@ -361,17 +347,6 @@ export function LunapawsStillroom() {
           </div>
         </section>
 
-        <section className="sr-story" id="story">
-          <div className="sr-wrap sr-story-grid">
-            <div className="sr-story-photo"><img src="/__mockup/images/lunapaws-stillroom-hero.png" alt="A quiet, sunlit moment at home with the LUNAPAWS house cat" loading="lazy" /><div className="sr-story-stamp">Chosen with curiosity.<br />Loved by little paws.</div></div>
-            <div className="sr-story-copy"><div className="sr-kicker">A note from our little corner</div><h2>Little paws.<br /><em>Big love.</em></h2>
-              <p>LUNAPAWS began with one small thought: the things our cats use every day should feel as special as they are.</p>
-              <p>So we look for the softer fabric, the safer clasp, the bowl that makes dinner a little nicer. Fewer, better things — chosen with care, and made to be lived in.</p>
-              <a className="sr-story-link" href="#letter" onClick={(e) => { e.preventDefault(); scrollTo("letter"); }}>Come say hello <ArrowRight /></a>
-            </div>
-          </div>
-        </section>
-
         <section className="sr-note" id="letter">
           <div className="sr-wrap sr-note-inner"><div><div className="sr-kicker">A little note, now and then</div><h2>Good things.<br /><em>In good company.</em></h2><p>New little joys, considered tips and a warm hello. No noise, promise.</p></div>
             <form className="sr-form" onSubmit={(event) => { event.preventDefault(); if (email.trim()) setSubscribed(true); }}>
@@ -386,7 +361,7 @@ export function LunapawsStillroom() {
       <footer className="sr-footer"><div className="sr-wrap">
         <div className="sr-footer-main">
           <div className="sr-footer-brand"><a className="sr-logo" href="#top" onClick={(e) => { e.preventDefault(); scrollTo("top"); }}><MoonPaw inverse /><span className="sr-wordmark" style={{ color: "#fff8ef" }}>LUNAPAWS</span></a><p>Thoughtful essentials for the little paws that make your whole world feel softer.</p></div>
-          <div><h3>Find your way</h3><button onClick={() => scrollTo("collection")}>The collection</button><button onClick={() => scrollTo("shop")}>Shop all</button><button onClick={() => scrollTo("story")}>Our story</button></div>
+          <div><h3>Find your way</h3><button onClick={() => scrollTo("collection")}>The collection</button><button onClick={() => scrollTo("shop")}>Shop all</button></div>
           <div><h3>Here to help</h3><a href="mailto:hello@lunapaws.example">Contact us</a><a href="mailto:hello@lunapaws.example?subject=Shipping">Shipping & returns</a><a href="mailto:hello@lunapaws.example?subject=Care">Care guide</a></div>
           <div><h3>Our little promise</h3><p style={{ color: "rgba(255,248,239,.58)", fontSize: 10, lineHeight: 1.8, margin: 0 }}>Considered materials. Honest details. A warmer kind of everyday for you and your cat.</p></div>
         </div>

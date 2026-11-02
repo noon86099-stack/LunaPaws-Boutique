@@ -16,6 +16,7 @@ import {
   Truck,
   X,
 } from "lucide-react";
+import advertisementVideo from "../../../../../../attached_assets/0_LunaPaws_Ad_1793645838002.mp4";
 
 type Category = "Cozy Beds" | "Toys & Play" | "Collars & Accessories" | "Feeding Essentials";
 type Product = {
@@ -463,6 +464,11 @@ export function LunapawsStorefront() {
         .lp-promo .lp-button { margin-top: 11px; }
         .lp-promo-art { position: absolute; right: 7%; bottom: -3px; width: 235px; height: 240px; display: flex; align-items: end; justify-content: center; opacity: .9; }
         .lp-promo-art img { width: 100%; height: 100%; object-fit: cover; border-radius: 130px 130px 14px 14px; filter: saturate(.72); }
+        .lp-video-section { padding: 76px 0; background: var(--lp-cream); }
+        .lp-video-window { width: 100%; aspect-ratio: 16 / 9; overflow: hidden; border-radius: 22px; background: var(--lp-forest); box-shadow: 0 18px 48px rgba(36,72,63,.12); }
+        .lp-video-window video { display: block; width: 100%; height: 100%; object-fit: contain; background: var(--lp-forest); }
+        .lp-video-footer { display: flex; align-items: center; justify-content: space-between; gap: 20px; margin-top: 20px; }
+        .lp-video-note { color: var(--lp-muted); font-size: 9px; letter-spacing: .08em; text-transform: uppercase; }
         .lp-about-section { background: #fffaf4; padding: 83px 0; }
         .lp-about-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 9%; align-items: center; }
         .lp-about-image { height: 390px; position: relative; border-radius: 18px; overflow: hidden; background: #e9ddd0; }
@@ -639,6 +645,10 @@ export function LunapawsStorefront() {
           .lp-promo h2 { max-width: 270px; font-size: 30px; }
           .lp-promo p { max-width: 260px; font-size: 10px; }
           .lp-promo-art { right: -12px; width: 135px; height: 137px; opacity: .58; }
+          .lp-video-section { padding: 56px 0; }
+          .lp-video-window { border-radius: 15px; }
+          .lp-video-footer { align-items: stretch; flex-direction: column; gap: 13px; margin-top: 15px; }
+          .lp-video-footer .lp-button { width: 100%; min-height: 46px; }
           .lp-about-section { padding: 60px 0; }
           .lp-about-grid { grid-template-columns: 1fr; gap: 28px; }
           .lp-about-image { height: 290px; }
@@ -853,6 +863,36 @@ export function LunapawsStorefront() {
               <div className="lp-promo-art">
                 <SafeImage src="https://images.pexels.com/photos/2071873/pexels-photo-2071873.jpeg?auto=compress&cs=tinysrgb&w=700" alt="A cat tucked into a soft, cozy bed" />
               </div>
+            </div>
+          </div>
+        </section>
+
+        <section className="lp-video-section" aria-labelledby="lp-video-title">
+          <div className="lp-container">
+            <div className="lp-section-heading">
+              <div>
+                <div className="lp-eyebrow">A little film from us</div>
+                <h2 id="lp-video-title">Our Story in Motion</h2>
+              </div>
+              <p>A little world of comfort, joy and love for your cat.</p>
+            </div>
+            <div className="lp-video-window">
+              <video
+                controls
+                playsInline
+                preload="metadata"
+                poster="/__mockup/images/lunapaws-daybook-ad-poster.jpg"
+                aria-label="LUNAPAWS advertisement video"
+              >
+                <source src={advertisementVideo} type="video/mp4" />
+                Your browser does not support the video element.
+              </video>
+            </div>
+            <div className="lp-video-footer">
+              <span className="lp-video-note">Little paws, big love — in every frame.</span>
+              <button className="lp-button" onClick={() => scrollTo("shop")}>
+                Explore Our Collection <ArrowRight />
+              </button>
             </div>
           </div>
         </section>
