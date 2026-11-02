@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import { ArrowDown, ArrowRight, Check, Heart, Minus, Plus, ShoppingBag, Sparkles, X } from "lucide-react";
+import advertisementVideo from "../../../../../../attached_assets/0_LunaPaws_Ad_1793645838002.mp4";
 
 type Product = {
   id: number;
@@ -161,6 +162,17 @@ export function LunapawsDaybook() {
         .ldb-story h2{font:500 clamp(28px,4vw,42px)/1.1 'Playfair Display',serif;margin:13px 0 8px}
         .ldb-story p{max-width:450px;color:#d1d5c9;font-size:11px;line-height:1.8;margin:0}
         .ldb-story-mark{font:italic 500 44px 'Playfair Display',serif;color:#e3b295;white-space:nowrap}
+        .ldb-film{padding:20px 0 60px;background:var(--paper)}
+        .ldb-film-head{display:flex;align-items:end;justify-content:space-between;gap:24px;margin-bottom:22px}
+        .ldb-film-head h2{font:500 clamp(30px,4vw,42px)/1.08 'Playfair Display',serif;letter-spacing:-.03em;color:var(--moss);margin:11px 0 0}
+        .ldb-film-head p{max-width:370px;color:var(--muted);font-size:12px;line-height:1.7;margin:0 0 3px}
+        .ldb-film-window{position:relative;width:100%;aspect-ratio:16/9;overflow:hidden;border-radius:18px;background:var(--moss);box-shadow:0 18px 48px rgba(41,61,53,.12)}
+        .ldb-film-window video{display:block;width:100%;height:100%;object-fit:contain;background:var(--moss)}
+        .ldb-film-foot{display:flex;align-items:center;justify-content:space-between;gap:18px;margin-top:20px}
+        .ldb-film-note{font:9px 'DM Mono',monospace;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+        .ldb-film-cta{display:inline-flex;align-items:center;justify-content:center;gap:10px;border:1px solid var(--moss);background:var(--moss);color:#fffdf7!important;padding:13px 17px;cursor:pointer;font-size:10px;font-weight:600;transition:background .2s,transform .2s}
+        .ldb-film-cta:hover{background:#223b31;transform:translateY(-1px)}
+        .ldb-film-cta svg{width:14px;height:14px}
         .ldb-footer{padding:22px clamp(20px,6vw,86px);display:flex;justify-content:space-between;align-items:center;color:#878b80;font:9px 'DM Mono',monospace;letter-spacing:.07em}
         .ldb-toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);z-index:10;background:var(--moss);color:#fffdf7;padding:12px 18px;font-size:11px;box-shadow:0 8px 25px #293d3526;animation:ldb-in .2s ease-out}
         @keyframes ldb-in{from{opacity:0;transform:translate(-50%,8px)}to{opacity:1;transform:translate(-50%,0)}}
@@ -185,7 +197,7 @@ export function LunapawsDaybook() {
         .ldb-total{display:flex;justify-content:space-between;font:12px 'DM Mono',monospace;color:var(--moss);margin-bottom:14px}
         .ldb-checkout{width:100%;justify-content:center}
         @media(max-width:900px){.ldb-wrap{width:min(100% - 40px,720px)}.ldb-daybook{grid-template-columns:220px 1fr}.ldb-feature{grid-template-columns:1fr 40%}.ldb-rail{padding:22px 14px}.ldb-ritual{grid-template-columns:42px 1fr;padding-inline:8px}.ldb-product-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.ldb-product-photo{height:230px}}
-        @media(max-width:640px){.ldb-top{font-size:8px}.ldb-nav{height:62px;padding:0 17px}.ldb-navnote{display:none}.ldb-brand{font-size:12px}.ldb-wrap{width:calc(100% - 32px)}.ldb-intro{padding:33px 0 19px;display:block}.ldb-intro h1{font-size:40px}.ldb-intro-aside{margin-top:12px;font-size:11px}.ldb-daybook{display:flex;flex-direction:column}.ldb-rail{order:2;border:0;border-top:1px solid var(--line);padding:15px 12px}.ldb-rail-head{margin:0 0 10px}.ldb-rituals{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:5px}.ldb-ritual{grid-template-columns:38px 1fr;padding:10px 6px}.ldb-ritual small{font-size:9px}.ldb-rail-foot{margin-top:10px;padding-top:10px}.ldb-feature{display:flex;flex-direction:column-reverse;min-height:0}.ldb-image{height:270px;min-height:270px}.ldb-feature-copy{padding:24px 21px 25px}.ldb-feature h2{font-size:37px;margin:11px 0 8px}.ldb-feature-copy>p{font-size:12px}.ldb-feature-product{margin-top:18px;padding-top:14px}.ldb-rec-grid{grid-template-columns:1fr}.ldb-recommend{padding:20px 0 42px}.ldb-rec-card{padding:9px}.ldb-rec-thumb{width:65px;height:62px}.ldb-shop{padding:45px 0 52px}.ldb-shop-top{display:block}.ldb-search{margin-top:17px;width:100%}.ldb-product-grid{gap:9px}.ldb-product-photo{height:clamp(140px,43vw,220px)}.ldb-product-info{padding:10px}.ldb-product-line{display:block;margin:6px 0}.ldb-product-line span{display:block}.ldb-product-info p{font-size:9px}.ldb-product-info .ldb-add{margin-top:9px}.ldb-story{padding:39px 0}.ldb-story-inner{display:block}.ldb-story-mark{display:block;margin-top:25px;font-size:35px}.ldb-footer{padding:18px;gap:12px;flex-wrap:wrap;font-size:8px}}
+         @media(max-width:640px){.ldb-top{font-size:8px}.ldb-nav{height:62px;padding:0 17px}.ldb-navnote{display:none}.ldb-brand{font-size:12px}.ldb-wrap{width:calc(100% - 32px)}.ldb-intro{padding:33px 0 19px;display:block}.ldb-intro h1{font-size:40px}.ldb-intro-aside{margin-top:12px;font-size:11px}.ldb-daybook{display:flex;flex-direction:column}.ldb-rail{order:2;border:0;border-top:1px solid var(--line);padding:15px 12px}.ldb-rail-head{margin:0 0 10px}.ldb-rituals{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:5px}.ldb-ritual{grid-template-columns:38px 1fr;padding:10px 6px}.ldb-ritual small{font-size:9px}.ldb-rail-foot{margin-top:10px;padding-top:10px}.ldb-feature{display:flex;flex-direction:column-reverse;min-height:0}.ldb-image{height:270px;min-height:270px}.ldb-feature-copy{padding:24px 21px 25px}.ldb-feature h2{font-size:37px;margin:11px 0 8px}.ldb-feature-copy>p{font-size:12px}.ldb-feature-product{margin-top:18px;padding-top:14px}.ldb-rec-grid{grid-template-columns:1fr}.ldb-recommend{padding:20px 0 42px}.ldb-rec-card{padding:9px}.ldb-rec-thumb{width:65px;height:62px}.ldb-shop{padding:45px 0 52px}.ldb-shop-top{display:block}.ldb-search{margin-top:17px;width:100%}.ldb-product-grid{gap:9px}.ldb-product-photo{height:clamp(140px,43vw,220px)}.ldb-product-info{padding:10px}.ldb-product-line{display:block;margin:6px 0}.ldb-product-line span{display:block}.ldb-product-info p{font-size:9px}.ldb-product-info .ldb-add{margin-top:9px}.ldb-film{padding:4px 0 42px}.ldb-film-head{display:block;margin-bottom:14px}.ldb-film-head h2{font-size:34px}.ldb-film-head p{margin-top:10px;font-size:11px}.ldb-film-window{border-radius:12px}.ldb-film-foot{align-items:stretch;flex-direction:column;margin-top:14px}.ldb-film-note{font-size:8px}.ldb-film-cta{width:100%;min-height:44px}.ldb-story{padding:39px 0}.ldb-story-inner{display:block}.ldb-story-mark{display:block;margin-top:25px;font-size:35px}.ldb-footer{padding:18px;gap:12px;flex-wrap:wrap;font-size:8px}}
         @media(prefers-reduced-motion:reduce){.ldb *{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
       `}</style>
 
@@ -263,6 +275,30 @@ export function LunapawsDaybook() {
                 <div className="ldb-product-info"><small>{item.category}</small><div className="ldb-product-line"><strong>{item.name}</strong><span>{money(item.price)}</span></div><p>{item.note}</p><button className="ldb-add" onClick={() => add(item)}>Add to bag <ArrowRight /></button></div>
               </article>
             )) : <div className="ldb-empty"><strong>Nothing in this little corner.</strong>Try another search or choose a different moment.</div>}
+          </div>
+        </div>
+      </section>
+
+      <section className="ldb-film" aria-labelledby="ldb-film-title">
+        <div className="ldb-wrap">
+          <div className="ldb-film-head">
+            <div>
+              <div className="ldb-kicker">A little film from us</div>
+              <h2 id="ldb-film-title">Our Story in Motion</h2>
+            </div>
+            <p>A little world of comfort, joy and love for your cat.</p>
+          </div>
+          <div className="ldb-film-window">
+            <video controls playsInline preload="none" poster="/__mockup/images/lunapaws-daybook-ad-poster.jpg" aria-label="LUNAPAWS advertisement video">
+              <source src={advertisementVideo} type="video/mp4" />
+              Your browser does not support the video element.
+            </video>
+          </div>
+          <div className="ldb-film-foot">
+            <span className="ldb-film-note">Little paws, big love — in every frame.</span>
+            <button className="ldb-film-cta" onClick={() => document.getElementById("collection")?.scrollIntoView({ behavior: "smooth", block: "start" })}>
+              Explore Our Collection <ArrowDown />
+            </button>
           </div>
         </div>
       </section>
