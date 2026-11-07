@@ -1,1 +1,2 @@
 - [LUNAPAWS brand](lunapaws-brand.md) — preserve the user-defined premium, cozy cat-accessories identity, audience, slogan, palette, and typography.
+- [Catalog continuity](lunapaws-catalog.md) — use the existing Supabase catalog and KWD pricing; preserve legacy browser bags and favourites when product identities change.

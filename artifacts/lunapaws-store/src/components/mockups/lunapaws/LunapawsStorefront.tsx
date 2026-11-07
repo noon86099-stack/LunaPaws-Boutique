@@ -19,108 +19,14 @@ import {
 import advertisementVideo from "@assets/0_LunaPaws_Ad_1793645838002.mp4";
 import { localizeContent, translateText, type StoreLanguage } from "@/lib/storefront-language";
 import { AddToBagButton } from "@/components/storefront/AddToBagButton";
+import { CatalogState } from "@/components/storefront/CatalogState";
+import { useProducts } from "@/hooks/use-products";
+import type { Product } from "@/lib/products";
+import { readCart, readFavorites, reconcileCart, reconcileFavorites } from "@/lib/shopping-state";
 
-type Category = "Cozy Beds" | "Toys & Play" | "Collars & Accessories" | "Feeding Essentials";
-type Product = {
-  id: number;
-  name: string;
-  category: Category;
-  price: number;
-  description: string;
-  rating: number;
-  reviews: number;
-  image: string;
-  tag?: string;
-};
-type CartItem = { productId: number; quantity: number };
+type Category = string;
 type Panel = "cart" | "favorites" | "checkout" | null;
-
-const PRODUCTS: Product[] = [
-  {
-    id: 1,
-    name: "The Sunday Cloud Bed",
-    category: "Cozy Beds",
-    price: 28.5,
-    description: "A sink-in-soft bouclé nest with a supportive recycled-fibre cushion. Removable cover, made for long afternoon naps.",
-    rating: 4.9,
-    reviews: 38,
-    image: "/images/lunapaws-product-sunday-cloud-bed.jpg",
-    tag: "Bestseller",
-  },
-  {
-    id: 2,
-    name: "Moss & Mellow Cushion",
-    category: "Cozy Beds",
-    price: 22.75,
-    description: "A deep, grounded green cushion with a quilted cotton shell and a plush, washable inner pad.",
-    rating: 4.8,
-    reviews: 24,
-    image: "/images/lunapaws-product-moss-cushion.jpg",
-  },
-  {
-    id: 3,
-    name: "Little Orbit Play Set",
-    category: "Toys & Play",
-    price: 8.9,
-    description: "A three-piece play set with a felted wool ball, feather wand and a little crinkle moon for curious paws.",
-    rating: 4.7,
-    reviews: 19,
-    image: "/images/lunapaws-product-orbit-play-set.jpg",
-    tag: "New",
-  },
-  {
-    id: 4,
-    name: "Tumbleweed Sisal Scratcher",
-    category: "Toys & Play",
-    price: 16.25,
-    description: "A sculptural, sturdy scratcher wrapped in natural sisal, designed to look lovely in your living room.",
-    rating: 4.9,
-    reviews: 31,
-    image: "/images/lunapaws-product-tumbleweed-scratcher.jpg",
-  },
-  {
-    id: 5,
-    name: "The Dune Everyday Collar",
-    category: "Collars & Accessories",
-    price: 6.75,
-    description: "Soft cotton webbing, a quick-release safety buckle and a tiny brass-tone bell. Easy, everyday comfort.",
-    rating: 4.8,
-    reviews: 42,
-    image: "/images/lunapaws-product-dune-collar.jpg",
-    tag: "Made for daily wear",
-  },
-  {
-    id: 6,
-    name: "Poppy Bow Collar",
-    category: "Collars & Accessories",
-    price: 7.5,
-    description: "A cheerful terracotta bow on an adjustable cotton collar, finished with a breakaway clasp.",
-    rating: 4.6,
-    reviews: 17,
-    image: "/images/lunapaws-product-poppy-bow-collar.jpg",
-  },
-  {
-    id: 7,
-    name: "Pebble Ceramic Bowl",
-    category: "Feeding Essentials",
-    price: 11.25,
-    description: "A gently raised stoneware bowl with a smooth, glazed inside and a weighted base that stays put.",
-    rating: 4.9,
-    reviews: 27,
-    image: "/images/lunapaws-product-pebble-ceramic-bowl.jpg",
-    tag: "Small-batch",
-  },
-  {
-    id: 8,
-    name: "Sage Slow-Supper Bowl",
-    category: "Feeding Essentials",
-    price: 13.4,
-    description: "A calming sage-green feeder with a shallow maze to make mealtimes a little slower and gentler.",
-    rating: 4.8,
-    reviews: 21,
-    image: "/images/lunapaws-product-sage-slow-bowl.jpg",
-  },
-];
+const EMPTY_PRODUCTS: Product[] = [];
 
 const CATEGORIES: { name: Category; image: string; line: string }[] = [
   { name: "Cozy Beds", image: "/images/lunapaws-product-sunday-cloud-bed.jpg", line: "A softer place to land." },
@@ -165,7 +71,7 @@ function SafeImage({
   useEffect(() => setImageSrc(src), [src]);
   return (
     <img
-      src={imageSrc}
+      src={imageSrc || FALLBACK_IMAGE}
       alt={alt}
       className={className}
       loading={loading}
@@ -175,6 +81,10 @@ function SafeImage({
 }
 
 export function LunapawsStorefront() {
+  const productsQuery = useProducts();
+  const products = productsQuery.data ?? EMPTY_PRODUCTS;
+  const catalogReady = productsQuery.isSuccess;
+  const retryProducts = () => { void productsQuery.refetch(); };
   const [language, setLanguage] = useState<StoreLanguage>(() => {
     try { return localStorage.getItem("lunapaws-language") === "ar" ? "ar" : "en"; }
     catch { return "en"; }
@@ -185,24 +95,13 @@ export function LunapawsStorefront() {
     document.title = language === "ar" ? "LUNAPAWS | مستلزمات قطط مختارة بحب" : "LUNAPAWS | Little Paws, Big Love";
     try { localStorage.setItem("lunapaws-language", language); } catch { /* Preference is optional when storage is disabled. */ }
   }, [language]);
-  const [cart, setCart] = useState<CartItem[]>(() => {
-    try {
-      const saved = localStorage.getItem("lunapaws-cart");
-      return saved ? (JSON.parse(saved) as CartItem[]) : [];
-    } catch {
-      return [];
-    }
-  });
-  const [favorites, setFavorites] = useState<number[]>(() => {
-    try {
-      const saved = localStorage.getItem("lunapaws-favorites");
-      return saved ? (JSON.parse(saved) as number[]) : [];
-    } catch {
-      return [];
-    }
-  });
+  const [savedCart, setCart] = useState(readCart);
+  const [savedFavorites, setFavorites] = useState(readFavorites);
+  const cart = useMemo(() => reconcileCart(savedCart, products), [savedCart, products]);
+  const favorites = useMemo(() => reconcileFavorites(savedFavorites, products), [savedFavorites, products]);
   const [panel, setPanel] = useState<Panel>(null);
-  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
+  const selectedProduct = products.find(product => product.id === selectedProductId);
   const [detailQuantity, setDetailQuantity] = useState(1);
   const [query, setQuery] = useState("");
   const [searchOpen, setSearchOpen] = useState(false);
@@ -216,10 +115,10 @@ export function LunapawsStorefront() {
   const [contact, setContact] = useState({ name: "", email: "", address: "", city: "", phone: "" });
 
   useEffect(() => {
-    localStorage.setItem("lunapaws-cart", JSON.stringify(cart));
+    try { localStorage.setItem("lunapaws-cart", JSON.stringify(cart)); } catch { /* Keep the session usable if browser storage is disabled. */ }
   }, [cart]);
   useEffect(() => {
-    localStorage.setItem("lunapaws-favorites", JSON.stringify(favorites));
+    try { localStorage.setItem("lunapaws-favorites", JSON.stringify(favorites)); } catch { /* Keep the session usable if browser storage is disabled. */ }
   }, [favorites]);
   useEffect(() => {
     const links = [
@@ -256,7 +155,7 @@ export function LunapawsStorefront() {
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
         setPanel(null);
-        setSelectedProduct(null);
+        setSelectedProductId(null);
         setMobileMenuOpen(false);
       }
     };
@@ -265,13 +164,19 @@ export function LunapawsStorefront() {
   }, []);
 
   const cartCount = cart.reduce((sum, item) => sum + item.quantity, 0);
+  const unavailableCartItems = cart.filter(item => !products.some(product => product.id === item.productId));
+  const unavailableFavorites = favorites.filter(id => !products.some(product => product.id === id));
+  const checkoutBlocked = !catalogReady || unavailableCartItems.length > 0 || cartCount === 0;
+  const filterCategories = useMemo(() => [...new Set([
+    ...CATEGORIES.map(category => category.name), ...products.map(product => product.category),
+  ])], [products]);
   const subtotal = cart.reduce((sum, item) => {
-    const product = PRODUCTS.find((entry) => entry.id === item.productId);
+    const product = products.find((entry) => entry.id === item.productId);
     return sum + (product?.price ?? 0) * item.quantity;
   }, 0);
   const visibleProducts = useMemo(() => {
     const term = query.trim().toLowerCase();
-    return PRODUCTS.filter((product) => {
+    return products.filter((product) => {
       const matchesCategory = activeCategory === "All" || product.category === activeCategory;
       const matchesFavorite = !showFavorites || favorites.includes(product.id);
       const matchesSearch =
@@ -281,40 +186,43 @@ export function LunapawsStorefront() {
           translateText(product.description, "ar")].join(" ").toLowerCase().includes(term);
       return matchesCategory && matchesFavorite && matchesSearch;
     });
-  }, [activeCategory, favorites, query, showFavorites]);
+  }, [products, activeCategory, favorites, query, showFavorites]);
 
   const scrollTo = (id: string) => {
     document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
     setMobileMenuOpen(false);
   };
   const addToCart = (product: Product, quantity = 1) => {
+    if (!catalogReady) return;
     setCart((current) => {
-      const match = current.find((item) => item.productId === product.id);
+      const resolved = reconcileCart(current, products);
+      const match = resolved.find((item) => item.productId === product.id);
       return match
-        ? current.map((item) =>
+        ? resolved.map((item) =>
             item.productId === product.id ? { ...item, quantity: item.quantity + quantity } : item,
           )
-        : [...current, { productId: product.id, quantity }];
+        : [...resolved, { productId: product.id, quantity }];
     });
     setToast(`${product.name} added to your bag`);
   };
-  const updateQuantity = (productId: number, delta: number) => {
+  const updateQuantity = (productId: string, delta: number) => {
     setCart((current) =>
-      current
+      reconcileCart(current, products)
         .map((item) =>
           item.productId === productId ? { ...item, quantity: item.quantity + delta } : item,
         )
         .filter((item) => item.quantity > 0),
     );
   };
-  const toggleFavorite = (productId: number) => {
-    setFavorites((current) =>
-      current.includes(productId) ? current.filter((id) => id !== productId) : [...current, productId],
-    );
+  const toggleFavorite = (productId: string) => {
+    setFavorites((current) => {
+      const resolved = reconcileFavorites(current, products);
+      return resolved.includes(productId) ? resolved.filter((id) => id !== productId) : [...resolved, productId];
+    });
   };
   const openProduct = (product: Product) => {
     setDetailQuantity(1);
-    setSelectedProduct(product);
+    setSelectedProductId(product.id);
   };
   const chooseCategory = (category: Category | "All") => {
     setActiveCategory(category);
@@ -332,6 +240,7 @@ export function LunapawsStorefront() {
   };
   const submitOrder = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    if (checkoutBlocked) { setPanel("cart"); return; }
     setOrderPlaced(true);
     setCart([]);
   };
@@ -407,6 +316,7 @@ export function LunapawsStorefront() {
         .lp-hero-copy p { max-width: 390px; margin: 0; color: #66716a; font-size: 13px; line-height: 1.85; }
         .lp-button { display: inline-flex; align-items: center; justify-content: center; gap: 11px; border: 1px solid var(--lp-forest); border-radius: 999px; background: var(--lp-forest); color: var(--lp-cream) !important; padding: 13px 22px; min-height: 47px; font-size: 11px; line-height: 1; letter-spacing: .06em; font-weight: 600; cursor: pointer; transition: transform .2s, background .2s, box-shadow .2s; }
         .lp-button:hover { background: #31594e; transform: translateY(-2px); box-shadow: 0 8px 20px rgba(36,72,63,.15); }
+        .lp-button:disabled { opacity: .5; cursor: not-allowed; transform: none; box-shadow: none; }
         .lp-button svg { width: 15px; height: 15px; }
         .lp-button-light { color: var(--lp-forest) !important; background: var(--lp-cream); border-color: var(--lp-cream); }
         .lp-button-light:hover { color: var(--lp-forest) !important; background: white; }
@@ -468,6 +378,16 @@ export function LunapawsStorefront() {
         .lp-empty-products svg { color: var(--lp-terracotta); }
         .lp-empty-products h3 { color: var(--lp-forest); font: 500 19px Poppins,sans-serif; margin: 10px 0 5px; }
         .lp-empty-products p { color: var(--lp-muted); font-size: 11px; margin: 0 0 14px; }
+        .lp-catalog-state { width: 100%; }
+        .lp-panel > .lp-catalog-state, .lp-checkout > .lp-catalog-state { margin-top: 24px; border-radius: 0; border-inline: 0; }
+        .lp-loading-icon { animation: lp-spin 1s linear infinite; }
+        .lp-product-skeleton { height: 365px; border-radius: 17px; background: #e9e1d8; animation: lp-pulse 1.4s ease-in-out infinite; }
+        .lp-unavailable-row { display: flex; justify-content: space-between; align-items: start; gap: 12px; padding: 18px 0; border-bottom: 1px solid var(--lp-line); }
+        .lp-unavailable-row h3 { margin: 0 0 5px; color: var(--lp-forest); font-size: 13px; }
+        .lp-unavailable-row p { margin: 0; color: var(--lp-muted); font-size: 12px; }
+        @keyframes lp-spin { to { transform: rotate(360deg); } }
+        @keyframes lp-pulse { 50% { opacity: .45; } }
+        @media (prefers-reduced-motion: reduce) { .lp-loading-icon, .lp-product-skeleton { animation: none; } }
         .lp-promo { padding: 0 0 82px; background: #f6eee4; }
         .lp-promo-inner { min-height: 276px; position: relative; overflow: hidden; display: flex; align-items: center; border-radius: 22px; background: var(--lp-forest); color: var(--lp-cream); }
         .lp-promo-inner::before { content: ""; position: absolute; width: 460px; height: 460px; border: 1px solid rgba(255,248,240,.15); border-radius: 50%; right: 4%; top: -180px; box-shadow: 0 0 0 38px rgba(255,248,240,.025),0 0 0 80px rgba(255,248,240,.025); }
@@ -855,16 +775,25 @@ export function LunapawsStorefront() {
             </div>
             <div className="lp-filter-row">
               <div className="lp-filter-pills" role="group" aria-label="Filter products by category">
-                {(["All", ...CATEGORIES.map((item) => item.name)] as (Category | "All")[]).map((category) => (
+                {(["All", ...filterCategories]).map((category) => (
                   <button className={`lp-filter-pill ${activeCategory === category ? "active" : ""}`} key={category} onClick={() => { setActiveCategory(category); setShowFavorites(false); }}>
                     {category === "All" ? "All essentials" : category}
                   </button>
                 ))}
               </div>
-              <div className="lp-filter-note">{visibleProducts.length} thoughtfully picked pieces</div>
+              <div className="lp-filter-note">{catalogReady ? `${visibleProducts.length} thoughtfully picked pieces` : productsQuery.isPending ? "Loading the collection..." : "Collection unavailable"}</div>
             </div>
-            <div className="lp-product-grid">
-              {visibleProducts.length ? visibleProducts.map((product) => (
+            <div className="lp-product-grid" aria-busy={productsQuery.isPending}>
+              {!catalogReady ? (
+                <>
+                  <CatalogState state={productsQuery.isPending || productsQuery.isFetching ? "loading" : "error"} language={language} onRetry={retryProducts} />
+                  {productsQuery.isPending && Array.from({ length: 8 }, (_, index) => (
+                    <div className="lp-product-skeleton" key={index} aria-hidden="true" />
+                  ))}
+                </>
+              ) : !products.length ? (
+                <CatalogState state="empty" language={language} onRetry={retryProducts} />
+              ) : visibleProducts.length ? visibleProducts.map((product) => (
                 <article className="lp-product-card" key={product.id} data-testid={`product-card-${product.id}`}>
                   <div className="lp-product-image">
                     <button className="lp-product-image-trigger" onClick={() => openProduct(product)} aria-label={`View ${product.name}`}>
@@ -1061,6 +990,13 @@ export function LunapawsStorefront() {
                   <p>Thanks, {contact.name || "friend"}. Your LUNAPAWS order has been placed in this prototype. No payment was taken.</p>
                   <button className="lp-button" onClick={() => { setPanel(null); setOrderPlaced(false); }}>Back to the good stuff <ArrowRight /></button>
                 </div>
+              ) : checkoutBlocked ? (
+                <>
+                  {!catalogReady ? <CatalogState state={productsQuery.isPending || productsQuery.isFetching ? "loading" : "error"} language={language} onRetry={retryProducts} /> : (
+                    <div className="lp-empty-state"><ShoppingBag /><h3>Please review your bag.</h3><p>Remove unavailable products before continuing.</p></div>
+                  )}
+                  <button className="lp-back-cart" onClick={() => setPanel("cart")}><ArrowLeft /> Back to your bag</button>
+                </>
               ) : (
                 <>
                   <form className="lp-panel-scroll lp-checkout-form" onSubmit={submitOrder}>
@@ -1089,13 +1025,20 @@ export function LunapawsStorefront() {
                 <h2 id="lp-panel-title">{panel === "cart" ? `Your bag (${cartCount})` : `Saved pieces (${favorites.length})`}</h2>
                 <button className="lp-close" aria-label="Close panel" onClick={() => setPanel(null)}><X /></button>
               </div>
-              {panel === "cart" ? (
+              {!catalogReady ? (
+                <CatalogState state={productsQuery.isPending || productsQuery.isFetching ? "loading" : "error"} language={language} onRetry={retryProducts} />
+              ) : panel === "cart" ? (
                 cart.length ? (
                   <>
                     <div className="lp-panel-scroll">
                       {cart.map((item) => {
-                        const product = PRODUCTS.find((entry) => entry.id === item.productId);
-                        if (!product) return null;
+                        const product = products.find((entry) => entry.id === item.productId);
+                        if (!product) return (
+                          <div className="lp-unavailable-row" key={item.productId}>
+                            <div><h3>Product no longer available</h3><p>Quantity: {item.quantity}</p></div>
+                            <button className="lp-remove" aria-label="Remove unavailable product" onClick={() => setCart(current => reconcileCart(current, products).filter(entry => entry.productId !== item.productId))}><X /></button>
+                          </div>
+                        );
                         return (
                           <div className="lp-cart-row" key={item.productId}>
                             <SafeImage src={product.image} alt={product.name} />
@@ -1108,7 +1051,7 @@ export function LunapawsStorefront() {
                                 <button aria-label={`Increase ${product.name} quantity`} onClick={() => updateQuantity(product.id, 1)}><Plus /></button>
                               </div>
                             </div>
-                            <button className="lp-remove" aria-label={`Remove ${product.name}`} onClick={() => setCart((current) => current.filter((entry) => entry.productId !== product.id))}><X /></button>
+                            <button className="lp-remove" aria-label={`Remove ${product.name}`} onClick={() => setCart((current) => reconcileCart(current, products).filter((entry) => entry.productId !== product.id))}><X /></button>
                           </div>
                         );
                       })}
@@ -1116,7 +1059,8 @@ export function LunapawsStorefront() {
                     <div className="lp-panel-bottom">
                       <div className="lp-subtotal"><span>Subtotal</span><span>{formatPrice(subtotal)}</span></div>
                       <small>Delivery calculated at checkout. Free delivery on orders over KWD 25.</small>
-                      <button className="lp-button lp-full-button" onClick={() => { setOrderPlaced(false); setPanel("checkout"); }}>Continue to demo checkout <ArrowRight /></button>
+                      {unavailableCartItems.length > 0 && <small role="alert">Remove unavailable products before continuing.</small>}
+                      <button className="lp-button lp-full-button" disabled={checkoutBlocked} onClick={() => { setOrderPlaced(false); setPanel("checkout"); }}>Continue to demo checkout <ArrowRight /></button>
                     </div>
                   </>
                 ) : (
@@ -1126,11 +1070,17 @@ export function LunapawsStorefront() {
                 favorites.length ? (
                   <>
                     <div className="lp-panel-scroll">
-                      {PRODUCTS.filter((product) => favorites.includes(product.id)).map((product) => (
+                      {products.filter((product) => favorites.includes(product.id)).map((product) => (
                         <div className="lp-cart-row" key={product.id}>
                           <SafeImage src={product.image} alt={product.name} />
                           <div><h3>{product.name}</h3><p>{formatPrice(product.price)}</p><AddToBagButton productId={product.id} productName={product.name} language={language} onAdd={() => addToCart(product)} /></div>
                           <button className="lp-remove" aria-label={`Remove ${product.name} from favorites`} onClick={() => toggleFavorite(product.id)}><Heart fill="currentColor" /></button>
+                        </div>
+                      ))}
+                      {unavailableFavorites.map(id => (
+                        <div className="lp-unavailable-row" key={id}>
+                          <h3>Saved product no longer available</h3>
+                          <button className="lp-remove" aria-label="Remove unavailable favorite" onClick={() => toggleFavorite(id)}><X /></button>
                         </div>
                       ))}
                     </div>
@@ -1146,15 +1096,14 @@ export function LunapawsStorefront() {
       )}
 
       {selectedProduct && (
-        <div className="lp-modal-backdrop" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) setSelectedProduct(null); }}>
+        <div className="lp-modal-backdrop" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) setSelectedProductId(null); }}>
           <section className="lp-product-modal" role="dialog" aria-modal="true" aria-labelledby="lp-product-modal-title">
             <div className="lp-modal-image"><SafeImage src={selectedProduct.image} alt={selectedProduct.name} loading="eager" /></div>
             <div className="lp-modal-copy">
-              <button className="lp-close" aria-label="Close product details" onClick={() => setSelectedProduct(null)}><X /></button>
+              <button className="lp-close" aria-label="Close product details" onClick={() => setSelectedProductId(null)}><X /></button>
               <div className="lp-eyebrow">{selectedProduct.category}</div>
               <h2 id="lp-product-modal-title">{selectedProduct.name}</h2>
-              <div className="lp-rating"><Star /> {selectedProduct.rating.toFixed(1)} <span>({selectedProduct.reviews} happy homes)</span></div>
-              <p>{selectedProduct.description}</p>
+              {selectedProduct.description && <p>{selectedProduct.description}</p>}
               <div className="lp-modal-price">{formatPrice(selectedProduct.price)}</div>
               <div className="lp-modal-actions">
                 <div className="lp-quantity">
@@ -1162,7 +1111,7 @@ export function LunapawsStorefront() {
                   <span>{detailQuantity}</span>
                   <button aria-label="Increase quantity" onClick={() => setDetailQuantity((quantity) => quantity + 1)}><Plus /></button>
                 </div>
-                <button className="lp-button" onClick={() => { addToCart(selectedProduct, detailQuantity); setSelectedProduct(null); }}>Add to bag <ShoppingBag /></button>
+                <button className="lp-button" disabled={!catalogReady} onClick={() => { addToCart(selectedProduct, detailQuantity); setSelectedProductId(null); }}>Add to bag <ShoppingBag /></button>
               </div>
             </div>
           </section>

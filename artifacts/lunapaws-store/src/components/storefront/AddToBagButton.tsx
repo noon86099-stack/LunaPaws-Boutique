@@ -3,7 +3,7 @@ import { Plus } from "lucide-react";
 import { translateText, type StoreLanguage } from "@/lib/storefront-language";
 
 type AddToBagButtonProps = {
-  productId: number;
+  productId: string;
   productName: string;
   language: StoreLanguage;
   onAdd: () => void;
