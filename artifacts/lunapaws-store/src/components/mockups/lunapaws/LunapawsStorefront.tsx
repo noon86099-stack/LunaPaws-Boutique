@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import advertisementVideo from "@assets/0_LunaPaws_Ad_1793645838002.mp4";
 import { localizeContent, translateText, type StoreLanguage } from "@/lib/storefront-language";
+import { AddToBagButton } from "@/components/storefront/AddToBagButton";
 
 type Category = "Cozy Beds" | "Toys & Play" | "Collars & Accessories" | "Feeding Essentials";
 type Product = {
@@ -121,11 +122,11 @@ const PRODUCTS: Product[] = [
   },
 ];
 
-const CATEGORIES: { name: Category; count: string; image: string; line: string }[] = [
-  { name: "Cozy Beds", count: "02 soft landings", image: "https://images.pexels.com/photos/1741205/pexels-photo-1741205.jpeg?auto=compress&cs=tinysrgb&w=900", line: "A softer place to land." },
-  { name: "Toys & Play", count: "02 little joys", image: "https://images.pexels.com/photos/45201/kitty-cat-kitten-pet-45201.jpeg?auto=compress&cs=tinysrgb&w=900", line: "For bright, busy paws." },
-  { name: "Collars & Accessories", count: "02 thoughtful details", image: "https://images.pexels.com/photos/1543793/pexels-photo-1543793.jpeg?auto=compress&cs=tinysrgb&w=900", line: "Everyday, with a little charm." },
-  { name: "Feeding Essentials", count: "02 daily rituals", image: "https://images.pexels.com/photos/2061057/pexels-photo-2061057.jpeg?auto=compress&cs=tinysrgb&w=900", line: "Make room for the good stuff." },
+const CATEGORIES: { name: Category; image: string; line: string }[] = [
+  { name: "Cozy Beds", image: "/images/lunapaws-product-sunday-cloud-bed.jpg", line: "A softer place to land." },
+  { name: "Toys & Play", image: "/images/lunapaws-product-orbit-play-set.jpg", line: "For bright, busy paws." },
+  { name: "Collars & Accessories", image: "/images/lunapaws-product-dune-collar.jpg", line: "Everyday, with a little charm." },
+  { name: "Feeding Essentials", image: "/images/lunapaws-product-pebble-ceramic-bowl.jpg", line: "Make room for the good stuff." },
 ];
 
 const FALLBACK_IMAGE =
@@ -443,26 +444,26 @@ export function LunapawsStorefront() {
         .lp-product-grid { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); gap: 18px; }
         .lp-product-card { min-width: 0; position: relative; overflow: hidden; background: #fffaf4; border: 1px solid rgba(59,72,59,.05); border-radius: 17px; transition: transform .28s ease, box-shadow .28s ease; }
         .lp-product-card:hover { transform: translateY(-5px); box-shadow: 0 16px 34px rgba(61,48,34,.1); }
-        .lp-product-image { position: relative; height: 208px; overflow: hidden; background: #e9dfd3; cursor: pointer; }
+        .lp-product-image { position: relative; height: 208px; overflow: hidden; background: #e9dfd3; }
+        .lp-product-image-trigger { display: block; width: 100%; height: 100%; padding: 0; border: 0; background: transparent; cursor: pointer; }
         .lp-product-image img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform .6s cubic-bezier(.2,.7,.2,1); }
         .lp-product-card:hover .lp-product-image img { transform: scale(1.055); }
-        .lp-product-tag { position: absolute; top: 12px; left: 12px; padding: 6px 9px; border-radius: 999px; background: rgba(255,248,240,.92); color: var(--lp-forest); font-size: 8px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; }
         .lp-fav-button { position: absolute; right: 11px; top: 11px; display: grid; place-items: center; width: 32px; height: 32px; border: 0; border-radius: 50%; background: rgba(255,248,240,.94); color: var(--lp-forest); cursor: pointer; transition: transform .2s, color .2s; }
         .lp-fav-button:hover { transform: scale(1.08); }
         .lp-fav-button svg { width: 15px; height: 15px; }
         .lp-fav-button.selected { color: #bd6f5c; }
-        .lp-product-info { padding: 15px 15px 14px; }
-        .lp-product-category { color: #899087; font-size: 8px; font-weight: 600; letter-spacing: .13em; text-transform: uppercase; }
-        .lp-product-title-row { display: flex; align-items: start; justify-content: space-between; gap: 8px; margin-top: 5px; }
-        .lp-product-title { margin: 0; color: var(--lp-forest); font: 500 14px/1.35 Poppins,sans-serif; cursor: pointer; }
-        .lp-product-price { color: var(--lp-forest); font: 600 11px Inter,sans-serif; white-space: nowrap; padding-top: 2px; }
-        .lp-product-desc { min-height: 34px; margin: 8px 0 11px; color: #858982; font-size: 9px; line-height: 1.55; }
-        .lp-product-foot { display: flex; justify-content: space-between; align-items: center; gap: 6px; }
+        .lp-product-info { padding: 16px 15px 12px; }
+        .lp-product-title { min-height: 40px; margin: 0 0 8px; color: var(--lp-forest); font: 500 14px/1.4 Poppins,sans-serif; }
+        .lp-product-title button { border: 0; padding: 0; background: transparent; color: inherit; font: inherit; text-align: start; cursor: pointer; }
+        .lp-product-price { display: block; margin-bottom: 13px; color: var(--lp-forest); font: 700 19px/1.4 Inter,sans-serif; font-variant-numeric: tabular-nums; white-space: nowrap; }
         .lp-rating { display: flex; align-items: center; gap: 4px; color: #7d6754; font-size: 9px; }
         .lp-rating svg { width: 11px; height: 11px; fill: #d9a56d; stroke: #d9a56d; }
         .lp-rating span { color: #a2a099; }
         .lp-add-small { display: inline-flex; align-items: center; gap: 6px; border: 0; background: transparent; color: var(--lp-forest); font-size: 9px; font-weight: 700; cursor: pointer; }
         .lp-add-small svg { width: 14px; height: 14px; }
+        .lp-card-add { width: 100%; justify-content: center; min-height: 42px; padding: 9px 10px; border: 1px solid var(--lp-forest); border-radius: 999px; font-size: 12px; transition: background .2s; }
+        .lp-card-add:hover { background: var(--lp-sage); }
+        .lp-add-feedback { display: block; min-height: 19px; padding-top: 3px; color: var(--lp-forest); font-size: 11px; font-weight: 600; text-align: center; }
         .lp-empty-products { grid-column: 1/-1; padding: 52px 20px; background: rgba(255,250,244,.7); border: 1px dashed #d9cfc2; border-radius: 18px; text-align: center; }
         .lp-empty-products svg { color: var(--lp-terracotta); }
         .lp-empty-products h3 { color: var(--lp-forest); font: 500 19px Poppins,sans-serif; margin: 10px 0 5px; }
@@ -539,7 +540,7 @@ export function LunapawsStorefront() {
         .lp-cart-row { display: grid; grid-template-columns: 77px 1fr auto; gap: 13px; padding: 13px 0; border-bottom: 1px solid var(--lp-line); }
         .lp-cart-row img { width: 77px; height: 77px; border-radius: 11px; object-fit: cover; background: #e9dfd3; }
         .lp-cart-row h3 { margin: 2px 0 5px; color: var(--lp-forest); font: 500 12px Poppins,sans-serif; }
-        .lp-cart-row p { margin: 0; color: var(--lp-muted); font-size: 9px; }
+        .lp-cart-row p { margin: 0 0 8px; color: var(--lp-forest); font-size: 16px; font-weight: 600; }
         .lp-quantity { display: flex; align-items: center; gap: 9px; margin-top: 12px; }
         .lp-quantity button { width: 22px; height: 22px; display: grid; place-items: center; border: 1px solid #ded6cb; border-radius: 50%; color: var(--lp-forest); background: transparent; cursor: pointer; }
         .lp-quantity button svg { width: 11px; height: 11px; }
@@ -562,7 +563,7 @@ export function LunapawsStorefront() {
         .lp-modal-copy .lp-close { position: absolute; right: 17px; top: 17px; }
         .lp-modal-copy h2 { color: var(--lp-forest); font: 500 28px/1.25 Poppins,sans-serif; margin: 12px 0 8px; letter-spacing: -.04em; }
         .lp-modal-copy > p { color: #788078; font-size: 11px; line-height: 1.8; margin: 19px 0; }
-        .lp-modal-price { color: var(--lp-forest); font-size: 16px; font-weight: 600; }
+        .lp-modal-price { color: var(--lp-forest); font-size: 21px; font-weight: 700; }
         .lp-modal-actions { display: flex; align-items: center; gap: 13px; margin-top: 23px; }
         .lp-modal-actions .lp-quantity { margin: 0; gap: 11px; }
         .lp-checkout { position: relative; display: flex; flex-direction: column; width: min(500px, 100%); height: 100%; background: var(--lp-cream); box-shadow: -15px 0 48px rgba(29,42,35,.16); animation: lp-slide-in .28s ease both; }
@@ -612,16 +613,16 @@ export function LunapawsStorefront() {
           .lp-mobile-nav { display: flex; flex-direction: column; gap: 0; padding: 3px 18px 14px; border-top: 1px solid var(--lp-line); background: var(--lp-cream); }
           .lp-mobile-nav button { padding: 12px 5px; border: 0; border-bottom: 1px solid #eee7df; background: transparent; color: var(--lp-forest); text-align: left; font-size: 12px; cursor: pointer; }
           .lp-search-pop { position: fixed; right: 16px; top: 108px; width: min(320px, calc(100vw - 32px)); }
-          .lp-hero { min-height: 570px; }
-          .lp-hero-photo { object-position: 62% center; }
-          .lp-hero::after { background: linear-gradient(90deg,rgba(255,248,240,.96) 0%,rgba(255,248,240,.82) 58%,rgba(255,248,240,.28) 100%); }
-          .lp-hero-inner { min-height: 570px; align-items: end; }
-          .lp-hero-copy { padding: 60px 0 40px; max-width: 430px; }
-          .lp-hero h1 { font-size: clamp(41px, 12vw, 56px); }
+          .lp-hero { min-height: 0; padding-top: 250px; background: var(--lp-cream); }
+          .lp-hero-photo { height: 285px; object-position: center 68%; filter: none; }
+          .lp-hero::after { bottom: auto; height: 285px; background: linear-gradient(180deg,rgba(255,248,240,0) 65%,var(--lp-cream) 100%); }
+          .lp-hero-inner { min-height: 0; }
+          .lp-hero-copy { padding: 16px 0 32px; max-width: 430px; }
+          .lp-hero h1 { font-size: clamp(36px, 11vw, 50px); margin: 16px 0 12px; }
           .lp-hero-copy p { font-size: 12px; max-width: 330px; }
           .lp-hero-note { gap: 12px; margin-top: 25px; flex-wrap: wrap; }
           .lp-hero-note span { font-size: 9px; }
-          .lp-stamp { right: 20px; bottom: 20px; width: 74px; height: 74px; }
+          .lp-stamp { right: 18px; top: 18px; bottom: auto; width: 64px; height: 64px; }
           .lp-stamp strong { font-size: 9px; }
           .lp-perk { padding: 14px 5px; gap: 6px; font-size: 8px; text-align: center; }
           .lp-perk svg { width: 13px; height: 13px; }
@@ -644,14 +645,10 @@ export function LunapawsStorefront() {
           .lp-product-grid { gap: 10px; }
           .lp-product-image { height: clamp(145px, 48vw, 210px); }
           .lp-product-info { padding: 11px 10px 12px; }
-          .lp-product-title-row { display: block; }
-          .lp-product-title { font-size: 12px; }
-          .lp-product-price { display: block; margin-top: 4px; font-size: 10px; }
-          .lp-product-desc { min-height: 48px; font-size: 8px; margin: 7px 0 8px; }
-          .lp-product-foot { align-items: flex-end; }
+          .lp-product-title { font-size: 12px; min-height: 36px; }
+          .lp-product-price { font-size: 17px; }
           .lp-rating { font-size: 8px; }
-          .lp-add-small { font-size: 0; gap: 0; padding: 4px; }
-          .lp-add-small svg { width: 17px; height: 17px; }
+          .lp-card-add { font-size: 11px; min-height: 44px; padding: 8px; gap: 5px; }
           .lp-promo { padding-bottom: 58px; }
           .lp-promo-inner { min-height: 330px; align-items: flex-start; border-radius: 17px; }
           .lp-promo-copy { padding: 30px 25px; }
@@ -802,7 +799,7 @@ export function LunapawsStorefront() {
             <div className="lp-hero-copy">
               <div className="lp-eyebrow">Made with a little more love</div>
               <h1 className="lp-display">Make Every Paw Feel <em>at Home.</em></h1>
-              <p>Thoughtful little comforts for the paws that make a house feel like home. Meet the everyday essentials your cat will claim as their own.</p>
+              <p>Beautiful everyday essentials for your cat's comfort, play and care.</p>
               <button className="lp-button" onClick={() => scrollTo("shop")}>Shop Now <ArrowRight /></button>
               <div className="lp-hero-note">
                 <span><ShieldCheck /> Gentle by design</span>
@@ -825,16 +822,16 @@ export function LunapawsStorefront() {
               <div>
                 <div className="lp-eyebrow">A happy home starts here</div>
                 <h2 className="lp-display">Find their new favourite.</h2>
-                <p>Little rituals, soft landings and playtime worth purring about.</p>
+                <p>Comfort, play and everyday care.</p>
               </div>
               <button className="lp-text-link" onClick={() => chooseCategory("All")}>Explore everything <ArrowRight /></button>
             </div>
             <div className="lp-category-grid">
-              {CATEGORIES.map((category) => (
+              {CATEGORIES.map((category, index) => (
                 <button key={category.name} className="lp-category-card" onClick={() => chooseCategory(category.name)} aria-label={`Shop ${category.name}`}>
                   <SafeImage src={category.image} alt={`${category.name} for cats`} />
                   <span className="lp-category-content">
-                    <small>{category.count}</small>
+                    <small dir="ltr">{String(index + 1).padStart(2, "0")}</small>
                     <strong>{category.name}</strong>
                     <span>{category.line}</span>
                   </span>
@@ -850,7 +847,7 @@ export function LunapawsStorefront() {
               <div>
                 <div className="lp-eyebrow">{showFavorites ? "Saved with love" : "The considered collection"}</div>
                 <h2 className="lp-display">{showFavorites ? "Your little wish list." : "Everyday, made lovely."}</h2>
-                <p>{showFavorites ? "The pieces you've tucked away for later." : "Good things for your favourite little person."}</p>
+                <p>{showFavorites ? "Your saved favourites, all together." : "Considered essentials. Happier cats."}</p>
               </div>
               <button className="lp-text-link" onClick={() => { setShowFavorites((show) => !show); setActiveCategory("All"); setQuery(""); }}>
                 {showFavorites ? "Shop all pieces" : "View favourites"} <ArrowRight />
@@ -868,25 +865,19 @@ export function LunapawsStorefront() {
             </div>
             <div className="lp-product-grid">
               {visibleProducts.length ? visibleProducts.map((product) => (
-                <article className="lp-product-card" key={product.id}>
-                  <div className="lp-product-image" onClick={() => openProduct(product)} role="button" tabIndex={0} onKeyDown={(event) => { if (event.key === "Enter" || event.key === " ") openProduct(product); }} aria-label={`View ${product.name}`}>
-                    <SafeImage src={product.image} alt={product.name} />
-                    {product.tag && <span className="lp-product-tag">{product.tag}</span>}
-                    <button className={`lp-fav-button ${favorites.includes(product.id) ? "selected" : ""}`} aria-label={favorites.includes(product.id) ? `Remove ${product.name} from favorites` : `Add ${product.name} to favorites`} onClick={(event) => { event.stopPropagation(); toggleFavorite(product.id); }}>
+                <article className="lp-product-card" key={product.id} data-testid={`product-card-${product.id}`}>
+                  <div className="lp-product-image">
+                    <button className="lp-product-image-trigger" onClick={() => openProduct(product)} aria-label={`View ${product.name}`}>
+                      <SafeImage src={product.image} alt={product.name} />
+                    </button>
+                    <button className={`lp-fav-button ${favorites.includes(product.id) ? "selected" : ""}`} aria-pressed={favorites.includes(product.id)} aria-label={favorites.includes(product.id) ? `Remove ${product.name} from favorites` : `Add ${product.name} to favorites`} onClick={() => toggleFavorite(product.id)}>
                       <Heart fill={favorites.includes(product.id) ? "currentColor" : "none"} />
                     </button>
                   </div>
                   <div className="lp-product-info">
-                    <div className="lp-product-category">{product.category}</div>
-                    <div className="lp-product-title-row">
-                      <h3 className="lp-product-title" onClick={() => openProduct(product)}>{product.name}</h3>
-                      <span className="lp-product-price">{formatPrice(product.price)}</span>
-                    </div>
-                    <p className="lp-product-desc">{product.description}</p>
-                    <div className="lp-product-foot">
-                      <div className="lp-rating"><Star /> {product.rating.toFixed(1)} <span>({product.reviews})</span></div>
-                      <button className="lp-add-small" aria-label={`Add ${product.name} to bag`} onClick={() => addToCart(product)}><Plus /> Add to bag</button>
-                    </div>
+                    <h3 className="lp-product-title"><button onClick={() => openProduct(product)}>{product.name}</button></h3>
+                    <span className="lp-product-price">{formatPrice(product.price)}</span>
+                    <AddToBagButton productId={product.id} productName={product.name} language={language} onAdd={() => addToCart(product)} />
                   </div>
                 </article>
               )) : (
@@ -907,7 +898,7 @@ export function LunapawsStorefront() {
               <div className="lp-promo-copy">
                 <div className="lp-eyebrow">A softer kind of everyday</div>
                 <h2 className="lp-display">Comfort, with a little character.</h2>
-                <p>For the nap in the afternoon sun, the 3am zoomies, and every little moment in between. Thoughtful pieces, chosen to be lived in.</p>
+                <p>Soft places to nap. Thoughtful details for every day.</p>
                 <button className="lp-button lp-button-light" onClick={() => chooseCategory("Cozy Beds")}>Make room for cozy <ArrowRight /></button>
               </div>
               <div className="lp-promo-art">
@@ -956,8 +947,7 @@ export function LunapawsStorefront() {
             <div className="lp-about-copy">
               <div className="lp-eyebrow">A note from us</div>
               <h2 className="lp-display">Little Paws,<br />Big Love.</h2>
-              <p>LUNAPAWS began with one simple thought: the things our cats use every day should feel as special as they are. So we look for the softer fabric, the safer clasp and the bowl that makes dinner a little nicer.</p>
-              <p>We believe in fewer, better things — made with care, chosen with curiosity, and loved by the smallest members of your family.</p>
+              <p>Everyday essentials, chosen with care. Soft fabrics, safer details and lasting quality — for the little paws that make your house a home.</p>
               <div className="lp-about-values">
                 <div className="lp-about-value"><strong>01</strong><span>Considered materials</span></div>
                 <div className="lp-about-value"><strong>02</strong><span>Made for real life</span></div>
@@ -982,19 +972,19 @@ export function LunapawsStorefront() {
               <article className="lp-testimonial primary">
                 <div className="lp-quote-mark">“</div>
                 <div className="lp-stars" aria-label="5 stars"><Star /><Star /><Star /><Star /><Star /></div>
-                <p>The bed is beautiful, but the real review is from Fig. She's been asleep in it since it arrived. It's officially her spot now.</p>
+                <p>Fig has been asleep in this beautiful bed since it arrived. It's officially her spot now.</p>
                 <div className="lp-reviewer"><div className="lp-avatar">AM</div><div><strong>Amira M.</strong><span>Cat mum to Fig · Kuwait City</span></div></div>
               </article>
               <article className="lp-testimonial">
                 <div className="lp-quote-mark">“</div>
                 <div className="lp-stars" aria-label="5 stars"><Star /><Star /><Star /><Star /><Star /></div>
-                <p>Finally, feeding bowls that don't look like an afterthought. The glaze is lovely and the quality feels so considered.</p>
+                <p>Beautiful bowls, a lovely glaze, and quality you can feel.</p>
                 <div className="lp-reviewer"><div className="lp-avatar">SA</div><div><strong>Sarah A.</strong><span>Cat mum to Olive</span></div></div>
               </article>
               <article className="lp-testimonial">
                 <div className="lp-quote-mark">“</div>
                 <div className="lp-stars" aria-label="5 stars"><Star /><Star /><Star /><Star /><Star /></div>
-                <p>Beautifully packed, delivered quickly, and the collar is soft enough for my fussy little moonbeam. Will be back.</p>
+                <p>Beautifully packed, delivered quickly, and a wonderfully soft collar. Will be back.</p>
                 <div className="lp-reviewer"><div className="lp-avatar">NH</div><div><strong>Noor H.</strong><span>Cat mum to Miso</span></div></div>
               </article>
             </div>
@@ -1139,7 +1129,7 @@ export function LunapawsStorefront() {
                       {PRODUCTS.filter((product) => favorites.includes(product.id)).map((product) => (
                         <div className="lp-cart-row" key={product.id}>
                           <SafeImage src={product.image} alt={product.name} />
-                          <div><h3>{product.name}</h3><p>{formatPrice(product.price)}</p><button className="lp-add-small" style={{ marginTop: 10, padding: 0 }} onClick={() => addToCart(product)}><Plus /> Add to bag</button></div>
+                          <div><h3>{product.name}</h3><p>{formatPrice(product.price)}</p><AddToBagButton productId={product.id} productName={product.name} language={language} onAdd={() => addToCart(product)} /></div>
                           <button className="lp-remove" aria-label={`Remove ${product.name} from favorites`} onClick={() => toggleFavorite(product.id)}><Heart fill="currentColor" /></button>
                         </div>
                       ))}

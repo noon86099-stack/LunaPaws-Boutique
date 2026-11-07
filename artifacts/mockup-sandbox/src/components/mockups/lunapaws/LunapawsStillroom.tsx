@@ -233,6 +233,7 @@ export function LunapawsStillroom() {
           .sr-wrap{width:calc(100% - 48px)}.sr-head{padding:0 24px}.sr-nav{gap:19px}
           .sr-hero,.sr-hero-inner{min-height:550px}.sr-hero-sticker{right:5%;top:8%}
           .sr-tile{height:300px}.sr-product-image{height:220px}
+          .sr-story-grid{gap:7%}.sr-story-photo{height:410px}
         }
         @media(max-width:680px){
           .sr-wrap{width:calc(100% - 38px)}.sr-banner{font-size:8px;height:29px}

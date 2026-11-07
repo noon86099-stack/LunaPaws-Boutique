@@ -7,7 +7,9 @@ LUNAPAWS is a premium cat-accessories brand for cat owners aged 18–40 who valu
 
 **Why:** The user specified these as core product and brand requirements.
 
-**How to apply:** Keep this identity consistent across future LUNAPAWS storefront, product, and marketing work unless the user changes it.
+**How to apply:** Keep this identity consistent across future LUNAPAWS storefront, product, and marketing work unless the user changes it. When improving the existing storefront, preserve its approved overall layout, logo, colors and fonts rather than rebuilding or redesigning it.
+
+**Why preserve the layout:** The user explicitly limited the instructor-feedback improvements to the listed issues and ruled out an unrelated redesign.
 
 The user requires Arabic and English language options for LUNAPAWS.
 
