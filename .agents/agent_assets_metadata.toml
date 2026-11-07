@@ -1,0 +1,16 @@
+uploads = []
+generated = []
+
+[[outputs]]
+id = "72q-MpvRvvKideoeIqWNl"
+uri = "file://attached_assets/lunapaws-auth-menu-guide.png"
+type = "image"
+title = "Click the circled Authentication icon"
+description = "The red circle marks the padlock in your screenshot, immediately below the selected Database icon on the far left."
+logical_id = "df1b5e2b-92fc-4d99-860c-156749a840b5"
+content_hash = "sha256:cea13da57c36051fe50bb5c88e313a6db97687379348ad1b1136f1cf357bab53"
+size = 136559
+mtime_ms = 1794070675182
+storage_uri = "gcs://replit-rams-assets-pike/rams/assets/repl:301a04d3-b2a2-4bcb-b52e-dc80075ac3bf/df1b5e2b-92fc-4d99-860c-156749a840b5/31456c39-154a-48de-aa31-e364c965b4d6"
+storage_version_token = "1794070682765287"
+content_type = "image/png"

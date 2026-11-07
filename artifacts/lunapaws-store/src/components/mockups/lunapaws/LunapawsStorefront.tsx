@@ -21,6 +21,10 @@ import { localizeContent, translateText, type StoreLanguage } from "@/lib/storef
 import { AddToBagButton } from "@/components/storefront/AddToBagButton";
 import { CatalogState } from "@/components/storefront/CatalogState";
 import { useProducts } from "@/hooks/use-products";
+import { useStoreAuth } from "@/hooks/use-store-auth";
+import { useAccountFavorites } from "@/hooks/use-account-favorites";
+import { AccountControls } from "@/components/storefront/AccountControls";
+import { AuthDialog, type AuthMode } from "@/components/storefront/AuthDialog";
 import type { Product } from "@/lib/products";
 import { readCart, readFavorites, reconcileCart, reconcileFavorites } from "@/lib/shopping-state";
 
@@ -81,6 +85,10 @@ function SafeImage({
 }
 
 export function LunapawsStorefront() {
+  const auth = useStoreAuth();
+  const accountFavorites = useAccountFavorites(auth.user?.id);
+  const [authMode, setAuthMode] = useState<AuthMode | null>(null);
+  const [pendingFavorite, setPendingFavorite] = useState<string | null>(null);
   const productsQuery = useProducts();
   const products = productsQuery.data ?? EMPTY_PRODUCTS;
   const catalogReady = productsQuery.isSuccess;
@@ -98,7 +106,9 @@ export function LunapawsStorefront() {
   const [savedCart, setCart] = useState(readCart);
   const [savedFavorites, setFavorites] = useState(readFavorites);
   const cart = useMemo(() => reconcileCart(savedCart, products), [savedCart, products]);
-  const favorites = useMemo(() => reconcileFavorites(savedFavorites, products), [savedFavorites, products]);
+  const legacyFavorites = useMemo(() => reconcileFavorites(savedFavorites, products), [savedFavorites, products]);
+  const importableFavorites = legacyFavorites.filter(id => products.some(product => product.id === id));
+  const favorites = accountFavorites.ids;
   const [panel, setPanel] = useState<Panel>(null);
   const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
   const selectedProduct = products.find(product => product.id === selectedProductId);
@@ -118,8 +128,21 @@ export function LunapawsStorefront() {
     try { localStorage.setItem("lunapaws-cart", JSON.stringify(cart)); } catch { /* Keep the session usable if browser storage is disabled. */ }
   }, [cart]);
   useEffect(() => {
-    try { localStorage.setItem("lunapaws-favorites", JSON.stringify(favorites)); } catch { /* Keep the session usable if browser storage is disabled. */ }
-  }, [favorites]);
+    // This key now holds only older guest selections awaiting explicit import.
+    // Account favourites are never mirrored into a shared browser/guest list.
+    try { localStorage.setItem("lunapaws-favorites", JSON.stringify(savedFavorites)); } catch { /* Keep older selections in memory if storage is disabled. */ }
+  }, [savedFavorites]);
+  useEffect(() => {
+    if (!pendingFavorite || !auth.user || !accountFavorites.ready) return;
+    const id = pendingFavorite;
+    setPendingFavorite(null);
+    if (accountFavorites.ids.includes(id)) return;
+    void accountFavorites.save([id]).then(() => {
+      setToast(language === "ar" ? "تمت الإضافة إلى مفضلاتك." : "Saved to your favourites.");
+    }).catch(() => {
+      setToast(language === "ar" ? "تعذر حفظ المفضلة. حاول مجدداً." : "Couldn't save your favourite. Please try again.");
+    });
+  }, [pendingFavorite, auth.user?.id, accountFavorites.ready]);
   useEffect(() => {
     const links = [
       ["preconnect", "https://fonts.googleapis.com"],
@@ -215,11 +238,43 @@ export function LunapawsStorefront() {
     );
   };
   const toggleFavorite = (productId: string) => {
-    setFavorites((current) => {
-      const resolved = reconcileFavorites(current, products);
-      return resolved.includes(productId) ? resolved.filter((id) => id !== productId) : [...resolved, productId];
+    if (!auth.user) {
+      setPendingFavorite(productId);
+      setAuthMode("login");
+      setPanel(null);
+      return;
+    }
+    if (!accountFavorites.ready || accountFavorites.saving) return;
+    const remove = favorites.includes(productId);
+    void accountFavorites.save([productId], remove).then(() => {
+      setToast(language === "ar"
+        ? (remove ? "تمت الإزالة من مفضلاتك." : "تمت الإضافة إلى مفضلاتك.")
+        : (remove ? "Removed from your favourites." : "Saved to your favourites."));
+    }).catch(() => {
+      setToast(language === "ar" ? "تعذر تحديث المفضلات. حاول مجدداً." : "Couldn't update your favourites. Please try again.");
     });
   };
+  const openAccount = (mode: AuthMode) => { setPanel(null); setPendingFavorite(null); setAuthMode(mode); };
+  const logout = async () => {
+    if (await auth.logout()) {
+      setShowFavorites(false);
+      setPendingFavorite(null);
+      setToast(language === "ar" ? "تم تسجيل الخروج." : "You have been logged out.");
+    }
+  };
+  const importFavorites = async () => {
+    const ids = [...importableFavorites];
+    if (!ids.length || accountFavorites.saving) return;
+    try {
+      await accountFavorites.save(ids);
+      setFavorites(current => reconcileFavorites(current, products).filter(id => !ids.includes(id)));
+      setToast(language === "ar" ? "تم حفظ مفضلات المتصفح في حسابك." : "Your browser favourites are now saved to your account.");
+    } catch {
+      setToast(language === "ar" ? "تعذر الاستيراد. مفضلات المتصفح لم تتغير." : "Import failed. Your browser favourites are unchanged.");
+    }
+  };
+  const accountControls = <AccountControls user={auth.user} loading={auth.loading} signingOut={auth.signingOut} language={language}
+    onLogin={() => openAccount("login")} onSignUp={() => openAccount("signup")} onLogout={() => { void logout(); }} />;
   const openProduct = (product: Product) => {
     setDetailQuantity(1);
     setSelectedProductId(product.id);
@@ -666,6 +721,7 @@ export function LunapawsStorefront() {
             ))}
           </nav>
           <div className="lp-header-actions">
+            <div className="lp-account-desktop">{accountControls}</div>
             <div className="lp-search-wrap">
               <button className="lp-icon-button" aria-label={searchOpen ? "Close product search" : "Search products"} onClick={() => setSearchOpen((open) => !open)}>
                 {searchOpen ? <X /> : <Search />}
@@ -700,6 +756,11 @@ export function LunapawsStorefront() {
             </button>
           </div>
         </div>
+        <div className="lp-container lp-account-mobile">{accountControls}</div>
+        {auth.error && <div className="lp-account-error lp-account-alert" role="alert">
+          {language === "ar" ? "تعذر إكمال طلب الحساب. حاول مجدداً." : "We couldn't complete your account request. Please try again."}
+          <button onClick={auth.retry}>{language === "ar" ? "إعادة المحاولة" : "Retry"}</button>
+        </div>}
         {mobileMenuOpen && (
           <div className="lp-mobile-nav">
             {navLinks.map((link) => <button key={link.target} onClick={() => scrollTo(link.target)}>{link.label}</button>)}
@@ -769,10 +830,14 @@ export function LunapawsStorefront() {
                 <h2 className="lp-display">{showFavorites ? "Your little wish list." : "Everyday, made lovely."}</h2>
                 <p>{showFavorites ? "Your saved favourites, all together." : "Considered essentials. Happier cats."}</p>
               </div>
-              <button className="lp-text-link" onClick={() => { setShowFavorites((show) => !show); setActiveCategory("All"); setQuery(""); }}>
+              <button className="lp-text-link" onClick={() => { if (!auth.user) { setPanel("favorites"); return; } setShowFavorites((show) => !show); setActiveCategory("All"); setQuery(""); }}>
                 {showFavorites ? "Shop all pieces" : "View favourites"} <ArrowRight />
               </button>
             </div>
+            {auth.user && accountFavorites.error && <div className="lp-favorites-status" role="alert">
+              {language === "ar" ? "تعذر تحميل مفضلاتك." : "Couldn't load your favourites."}
+              <button className="lp-text-link" onClick={accountFavorites.retry}>{language === "ar" ? "إعادة المحاولة" : "Retry"}</button>
+            </div>}
             <div className="lp-filter-row">
               <div className="lp-filter-pills" role="group" aria-label="Filter products by category">
                 {(["All", ...filterCategories]).map((category) => (
@@ -799,7 +864,7 @@ export function LunapawsStorefront() {
                     <button className="lp-product-image-trigger" onClick={() => openProduct(product)} aria-label={`View ${product.name}`}>
                       <SafeImage src={product.image} alt={product.name} />
                     </button>
-                    <button className={`lp-fav-button ${favorites.includes(product.id) ? "selected" : ""}`} aria-pressed={favorites.includes(product.id)} aria-label={favorites.includes(product.id) ? `Remove ${product.name} from favorites` : `Add ${product.name} to favorites`} onClick={() => toggleFavorite(product.id)}>
+                    <button className={`lp-fav-button ${favorites.includes(product.id) ? "selected" : ""}`} disabled={auth.loading || Boolean(auth.user && !accountFavorites.ready) || accountFavorites.saving} aria-busy={accountFavorites.saving} aria-pressed={favorites.includes(product.id)} aria-label={favorites.includes(product.id) ? `Remove ${product.name} from favorites` : `Add ${product.name} to favorites`} onClick={() => toggleFavorite(product.id)}>
                       <Heart fill={favorites.includes(product.id) ? "currentColor" : "none"} />
                     </button>
                   </div>
@@ -1025,7 +1090,22 @@ export function LunapawsStorefront() {
                 <h2 id="lp-panel-title">{panel === "cart" ? `Your bag (${cartCount})` : `Saved pieces (${favorites.length})`}</h2>
                 <button className="lp-close" aria-label="Close panel" onClick={() => setPanel(null)}><X /></button>
               </div>
-              {!catalogReady ? (
+              {panel === "favorites" && !auth.user ? (
+                <div className="lp-favorites-status">
+                  <Heart />
+                  <h3>{language === "ar" ? "مفضلاتك، أينما كنت." : "Your favourites, wherever you are."}</h3>
+                  <p>{language === "ar" ? "سجل الدخول لحفظ القطع المفضلة في حسابك." : "Log in to keep your saved pieces safe in your account."}</p>
+                  <button className="lp-button lp-full-button" disabled={auth.loading} onClick={() => openAccount("login")}>{language === "ar" ? "تسجيل الدخول" : "Login"}</button>
+                  <button className="lp-text-link" disabled={auth.loading} onClick={() => openAccount("signup")}>{language === "ar" ? "إنشاء حساب" : "Sign Up"}</button>
+                </div>
+              ) : panel === "favorites" && accountFavorites.loading ? (
+                <div className="lp-favorites-status" role="status">{language === "ar" ? "جارٍ تحميل مفضلاتك..." : "Loading your favourites..."}</div>
+              ) : panel === "favorites" && accountFavorites.error ? (
+                <div className="lp-favorites-status" role="alert">
+                  <p>{language === "ar" ? "تعذر تحميل مفضلاتك. اختياراتك المحفوظة لم تتغير." : "Couldn't load your favourites. Your saved pieces are unchanged."}</p>
+                  <button className="lp-button" onClick={accountFavorites.retry}>{language === "ar" ? "إعادة المحاولة" : "Retry"}</button>
+                </div>
+              ) : !catalogReady ? (
                 <CatalogState state={productsQuery.isPending || productsQuery.isFetching ? "loading" : "error"} language={language} onRetry={retryProducts} />
               ) : panel === "cart" ? (
                 cart.length ? (
@@ -1067,20 +1147,26 @@ export function LunapawsStorefront() {
                   <div className="lp-empty-state"><ShoppingBag /><h3>Your bag is taking a nap.</h3><p>Find something soft, lovely or wonderfully practical for your favourite little person.</p><button className="lp-button" onClick={() => { setPanel(null); scrollTo("shop"); }}>Explore the shop <ArrowRight /></button></div>
                 )
               ) : (
-                favorites.length ? (
+                <>
+                {legacyFavorites.length > 0 && <div className="lp-legacy-favorites">
+                  <p>{language === "ar" ? "لديك مفضلات قديمة في هذا المتصفح. هل تريد إضافتها إلى حسابك؟" : "You have favourites saved in this browser. Add them to your account?"}</p>
+                  {importableFavorites.length > 0 && <button className="lp-text-link" disabled={accountFavorites.saving} onClick={() => { void importFavorites(); }}>{language === "ar" ? "استيراد مفضلات المتصفح" : "Import browser favourites"}</button>}
+                  {legacyFavorites.length > importableFavorites.length && <p>{language === "ar" ? "بعض المفضلات القديمة لم تعد متاحة؛ لم نحذف اختياراتك المحفوظة." : "Some older favourites are no longer available; your saved selections have not been deleted."}</p>}
+                </div>}
+                {favorites.length ? (
                   <>
                     <div className="lp-panel-scroll">
                       {products.filter((product) => favorites.includes(product.id)).map((product) => (
                         <div className="lp-cart-row" key={product.id}>
                           <SafeImage src={product.image} alt={product.name} />
                           <div><h3>{product.name}</h3><p>{formatPrice(product.price)}</p><AddToBagButton productId={product.id} productName={product.name} language={language} onAdd={() => addToCart(product)} /></div>
-                          <button className="lp-remove" aria-label={`Remove ${product.name} from favorites`} onClick={() => toggleFavorite(product.id)}><Heart fill="currentColor" /></button>
+                          <button className="lp-remove" disabled={accountFavorites.saving} aria-label={`Remove ${product.name} from favorites`} onClick={() => toggleFavorite(product.id)}><Heart fill="currentColor" /></button>
                         </div>
                       ))}
                       {unavailableFavorites.map(id => (
                         <div className="lp-unavailable-row" key={id}>
                           <h3>Saved product no longer available</h3>
-                          <button className="lp-remove" aria-label="Remove unavailable favorite" onClick={() => toggleFavorite(id)}><X /></button>
+                          <button className="lp-remove" disabled={accountFavorites.saving} aria-label="Remove unavailable favorite" onClick={() => toggleFavorite(id)}><X /></button>
                         </div>
                       ))}
                     </div>
@@ -1088,12 +1174,17 @@ export function LunapawsStorefront() {
                   </>
                 ) : (
                   <div className="lp-empty-state"><Heart /><h3>Keep the good ones close.</h3><p>Tap the little heart on anything that feels just right for your cat.</p><button className="lp-button" onClick={() => { setPanel(null); scrollTo("shop"); }}>Find a favourite <ArrowRight /></button></div>
-                )
+                )}
+                </>
               )}
             </section>
           )}
         </div>
       )}
+
+      {authMode && <AuthDialog initialMode={authMode} language={language}
+        onClose={() => { setAuthMode(null); setPendingFavorite(null); }}
+        onSignedIn={() => { setAuthMode(null); setToast(language === "ar" ? "مرحباً بك في LUNAPAWS." : "Welcome to LUNAPAWS."); }} />}
 
       {selectedProduct && (
         <div className="lp-modal-backdrop" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) setSelectedProductId(null); }}>

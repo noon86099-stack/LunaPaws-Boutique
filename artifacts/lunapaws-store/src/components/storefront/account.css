@@ -1,0 +1,40 @@
+.lp-account-controls { display: flex; align-items: center; gap: 11px; color: #24483f; font: 500 11px Inter, 'Noto Sans Arabic', sans-serif; }
+.lp-account-controls button { border: 0; background: transparent; color: inherit; padding: 7px 0; white-space: nowrap; cursor: pointer; font: inherit; }
+.lp-account-controls button:hover, .lp-auth-switch:hover { text-decoration: underline; }
+.lp-account-controls .lp-account-signup { border: 1px solid #24483f40; border-radius: 20px; padding: 8px 12px; }
+.lp-account-name { max-width: 125px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.lp-account-mobile { display: none; }
+.lp-account-error { color: #923d2d; font-size: 12px; line-height: 1.6; }
+.lp-account-alert { padding: 8px 20px; text-align: center; background: #fae7da; }
+.lp-account-alert button { margin-inline-start: 12px; border: 0; background: transparent; text-decoration: underline; cursor: pointer; }
+.lp-auth-dialog { padding: 0; border: 1px solid #24483f20; border-radius: 24px; background: #fff8f0; color: #24483f; width: min(440px, calc(100vw - 32px)); max-height: calc(100dvh - 32px); overflow: auto; box-shadow: 0 25px 100px #142d2540; }
+.lp-auth-dialog::backdrop { background: #142d2580; backdrop-filter: blur(5px); }
+.lp-auth-inner { padding: 38px 30px 30px; position: relative; font-family: Inter, 'Noto Sans Arabic', sans-serif; }
+.lp-auth-close { position: absolute; inset-inline-end: 12px; top: 12px; }
+.lp-auth-inner h2 { font: 500 25px/1.4 Poppins, 'Noto Sans Arabic', sans-serif; margin: 14px 0 10px; }
+.lp-auth-inner > p, .lp-auth-confirmation p { font-size: 13px; line-height: 1.8; color: #6c746d; }
+.lp-auth-form { display: grid; gap: 16px; margin-top: 25px; }
+.lp-auth-form label { display: grid; gap: 8px; font-size: 12px; font-weight: 500; }
+.lp-auth-form input { box-sizing: border-box; width: 100%; min-width: 0; padding: 12px 14px; border: 1px solid #24483f30; border-radius: 11px; background: #fffdf9; color: #24483f; font: 14px Inter, 'Noto Sans Arabic', sans-serif; }
+.lp-auth-form input:focus { outline: 2px solid #24483f; outline-offset: 2px; }
+.lp-auth-form small { font-size: 11px; color: #6c746d; }
+.lp-auth-form .lp-account-error { margin: 0; }
+.lp-auth-switch { width: 100%; border: 0; background: transparent; color: #24483f; font-size: 12px; margin-top: 22px; cursor: pointer; line-height: 1.8; }
+.lp-auth-dialog button:disabled, .lp-root button:disabled { cursor: wait; opacity: .55; }
+.lp-favorites-status { padding: 25px; text-align: center; line-height: 1.8; color: #24483f; font-size: 13px; }
+.lp-favorites-status button + button { margin-top: 12px; }
+.lp-legacy-favorites { padding: 16px 25px; border-bottom: 1px solid #24483f20; font-size: 12px; line-height: 1.7; }
+.lp-legacy-favorites p { margin-top: 0; }
+.lp-legacy-favorites button { font-size: 12px; }
+@media (min-width: 681px) and (max-width: 1050px) {
+  .lp-account-name { max-width: 85px; }
+  .lp-account-controls { gap: 6px; font-size: 10px; }
+  .lp-account-controls .lp-account-signup { padding: 6px 8px; }
+  .lp-root .lp-header-actions { gap: 5px; }
+}
+@media (max-width: 680px) {
+  .lp-account-desktop { display: none; }
+  .lp-account-mobile { display: flex; justify-content: flex-end; padding-block: 4px 8px; border-top: 1px solid #24483f0a; }
+  .lp-account-name { max-width: 210px; }
+  .lp-auth-inner { padding: 35px 24px 24px; }
+}
