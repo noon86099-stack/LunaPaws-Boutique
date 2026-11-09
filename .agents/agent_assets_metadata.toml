@@ -14,3 +14,17 @@ mtime_ms = 1794070675182
 storage_uri = "gcs://replit-rams-assets-pike/rams/assets/repl:301a04d3-b2a2-4bcb-b52e-dc80075ac3bf/df1b5e2b-92fc-4d99-860c-156749a840b5/31456c39-154a-48de-aa31-e364c965b4d6"
 storage_version_token = "1794070682765287"
 content_type = "image/png"
+
+[[outputs]]
+id = "XRbpw91HlWMYKfzI44kHn"
+uri = "file://attached_assets/0_LunaPaws_Ad_1793645838002.mp4"
+type = "video"
+title = "Original LUNAPAWS advertisement"
+description = "Download this original video, then upload it to a public Supabase Storage bucket so the website can load it on Vercel."
+logical_id = "012a7f18-6bf9-4768-b6e9-3eff9c060999"
+content_hash = "sha256:cbed2732f0fd9afbe7f11861e60a67ccb172ddad45a9a3f7290a641691e12933"
+size = 7769930
+mtime_ms = 1793645851127
+storage_uri = "gcs://replit-rams-assets-pike/rams/assets/repl:301a04d3-b2a2-4bcb-b52e-dc80075ac3bf/012a7f18-6bf9-4768-b6e9-3eff9c060999/a7da4b78-31c6-4dde-afa8-c928026f8ab1"
+storage_version_token = "1794243079490551"
+content_type = "video/mp4"
