@@ -1,0 +1,7 @@
+[functions.create-checkout-session]
+# Guests may check out; the function authenticates account tokens itself and rate-limits guest orders.
+verify_jwt = false
+
+[functions.stripe-webhook]
+# Stripe supplies a signature, not a Supabase JWT.
+verify_jwt = false

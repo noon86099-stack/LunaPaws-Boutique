@@ -21,7 +21,8 @@ const savedId = (value: unknown): string | null =>
 
 export function readCart(): CartItem[] {
   try {
-    const data: unknown = JSON.parse(localStorage.getItem("lunapaws-cart") ?? "[]");
+    const stored = JSON.parse(localStorage.getItem("lunapaws-cart") ?? "[]");
+    const data: unknown = Array.isArray(stored) ? stored : stored?.items;
     if (!Array.isArray(data)) return [];
     return data.flatMap(item => {
       const id = savedId(item?.productId);
@@ -29,6 +30,35 @@ export function readCart(): CartItem[] {
         ? [{ productId: id, quantity: item.quantity }] : [];
     });
   } catch { return []; }
+}
+
+function paidReceipts(): string[] {
+  const stored = JSON.parse(localStorage.getItem("lunapaws-cart") ?? "[]");
+  return Array.isArray(stored?.paidOrders)
+    ? stored.paidOrders.filter((id: unknown): id is string => typeof id === "string") : [];
+}
+
+export function persistCart(items: CartItem[]): boolean {
+  try {
+    localStorage.setItem("lunapaws-cart", JSON.stringify({ version: 2, items, paidOrders: paidReceipts() }));
+    return true;
+  } catch { return false; }
+}
+
+/** Save the updated bag AND the receipt in one write, before updating React.
+ * Reopening a paid return must never subtract those quantities a second time.
+ */
+export function consumePaidOrder(orderId: string, paid: CartItem[], products: Product[]): CartItem[] {
+  const receipts = paidReceipts();
+  const current = reconcileCart(readCart(), products);
+  if (receipts.includes(orderId)) return current;
+  const quantities = new Map(paid.map(item => [item.productId, item.quantity]));
+  const items = current.map(item => ({
+    ...item, quantity: Math.max(0, item.quantity - (quantities.get(item.productId) ?? 0)),
+  })).filter(item => item.quantity > 0);
+  // Throws rather than risking repeated subtraction after a failed storage write.
+  localStorage.setItem("lunapaws-cart", JSON.stringify({ version: 2, items, paidOrders: [...receipts, orderId] }));
+  return items;
 }
 
 export function readFavorites(): string[] {

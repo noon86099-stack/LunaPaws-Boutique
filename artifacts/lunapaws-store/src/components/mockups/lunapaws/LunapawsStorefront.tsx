@@ -25,7 +25,10 @@ import { useAccountFavorites } from "@/hooks/use-account-favorites";
 import { AccountControls } from "@/components/storefront/AccountControls";
 import { AuthDialog, type AuthMode } from "@/components/storefront/AuthDialog";
 import type { Product } from "@/lib/products";
-import { readCart, readFavorites, reconcileCart, reconcileFavorites } from "@/lib/shopping-state";
+import { consumePaidOrder, persistCart, readCart, readFavorites, reconcileCart, reconcileFavorites } from "@/lib/shopping-state";
+import { useStoreCheckout } from "@/hooks/use-store-checkout";
+import { PaymentStatus } from "@/components/storefront/PaymentStatus";
+import { checkoutError } from "@/lib/checkout";
 
 type Category = string;
 type Panel = "cart" | "favorites" | "checkout" | null;
@@ -121,11 +124,15 @@ export function LunapawsStorefront() {
   const [toast, setToast] = useState("");
   const [newsletterEmail, setNewsletterEmail] = useState("");
   const [newsletterMessage, setNewsletterMessage] = useState("");
-  const [orderPlaced, setOrderPlaced] = useState(false);
-  const [contact, setContact] = useState({ name: "", email: "", address: "", city: "", phone: "" });
+  const [contact, setContact] = useState({ name: "", address: "", city: "", phone: "" });
+  const [guestEmail, setGuestEmail] = useState("");
+  const checkout = useStoreCheckout(auth.user, auth.loading, catalogReady, products, order => {
+    // Remove only quantities from the paid snapshot; later additions stay in the bag.
+    setCart(consumePaidOrder(order.id, order.items, products));
+  });
 
   useEffect(() => {
-    try { localStorage.setItem("lunapaws-cart", JSON.stringify(cart)); } catch { /* Keep the session usable if browser storage is disabled. */ }
+    persistCart(cart);
   }, [cart]);
   useEffect(() => {
     // This key now holds only older guest selections awaiting explicit import.
@@ -197,6 +204,11 @@ export function LunapawsStorefront() {
     const product = products.find((entry) => entry.id === item.productId);
     return sum + (product?.price ?? 0) * item.quantity;
   }, 0);
+  // Mirrors the server's fixed-rate conversion (1 KWD = 3.25 USD, rounded per unit); the server decides the real charge.
+  const chargeCents = cart.reduce((sum, item) => {
+    const product = products.find(entry => entry.id === item.productId);
+    return sum + Math.round(Math.round((product?.price ?? 0) * 1000) * 0.325) * item.quantity;
+  }, 0) + (subtotal === 0 || subtotal >= 25 ? 0 : 488);
   const visibleProducts = useMemo(() => {
     const term = query.trim().toLowerCase();
     return products.filter((product) => {
@@ -296,8 +308,7 @@ export function LunapawsStorefront() {
   const submitOrder = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (checkoutBlocked) { setPanel("cart"); return; }
-    setOrderPlaced(true);
-    setCart([]);
+    void checkout.start(cart, contact, guestEmail);
   };
 
   const navLinks = [
@@ -743,7 +754,7 @@ export function LunapawsStorefront() {
                 </div>
               )}
             </div>
-            <button className="lp-icon-button" aria-label={`View favorites, ${favorites.length} items`} onClick={() => { setPanel("favorites"); setOrderPlaced(false); }}>
+            <button className="lp-icon-button" aria-label={`View favorites, ${favorites.length} items`} onClick={() => { setPanel("favorites"); }}>
               <Heart />
               {favorites.length > 0 && <span className="lp-count">{favorites.length}</span>}
             </button>
@@ -1040,22 +1051,28 @@ export function LunapawsStorefront() {
         </div>
       </footer>
 
+      {checkout.hasReturn && (
+        <div className="lp-overlay" role="presentation">
+          <section className="lp-checkout" role="dialog" aria-modal="true" aria-labelledby="lp-payment-title">
+            <div className="lp-panel-head">
+              <h2 id="lp-payment-title">{language === "ar" ? "حالة الدفع" : "Payment status"}</h2>
+              <button className="lp-close" aria-label="Close checkout" onClick={checkout.dismissReturn}><X /></button>
+            </div>
+            <PaymentStatus view={checkout.view ?? { kind: "checking" }} language={language} retry={checkout.retry}
+              login={() => { checkout.dismissReturn(); openAccount("login"); }}
+              back={() => { checkout.dismissReturn(); setPanel("cart"); }} />
+          </section>
+        </div>
+      )}
       {panel && (
         <div className="lp-overlay" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) setPanel(null); }}>
           {panel === "checkout" ? (
             <section className="lp-checkout" role="dialog" aria-modal="true" aria-labelledby="lp-checkout-title">
               <div className="lp-panel-head">
-                <h2 id="lp-checkout-title">{orderPlaced ? "A little happy dance" : "Your details"}</h2>
-                <button className="lp-close" aria-label="Close checkout" onClick={() => { setPanel(null); setOrderPlaced(false); }}><X /></button>
+                <h2 id="lp-checkout-title">Your details</h2>
+                <button className="lp-close" aria-label="Close checkout" onClick={() => setPanel(null)}><X /></button>
               </div>
-              {orderPlaced ? (
-                <div className="lp-success">
-                  <div className="lp-success-mark"><Check /></div>
-                  <h2>It's a demo order, but the love is real.</h2>
-                  <p>Thanks, {contact.name || "friend"}. Your LUNAPAWS order has been placed in this prototype. No payment was taken.</p>
-                  <button className="lp-button" onClick={() => { setPanel(null); setOrderPlaced(false); }}>Back to the good stuff <ArrowRight /></button>
-                </div>
-              ) : checkoutBlocked ? (
+              {checkoutBlocked ? (
                 <>
                   {!catalogReady ? <CatalogState state={productsQuery.isPending || productsQuery.isFetching ? "loading" : "error"} language={language} onRetry={retryProducts} /> : (
                     <div className="lp-empty-state"><ShoppingBag /><h3>Please review your bag.</h3><p>Remove unavailable products before continuing.</p></div>
@@ -1065,9 +1082,11 @@ export function LunapawsStorefront() {
               ) : (
                 <>
                   <form className="lp-panel-scroll lp-checkout-form" onSubmit={submitOrder}>
-                    <div className="lp-demo-notice"><ShieldCheck /> <span><strong>Prototype checkout — no payment will be taken.</strong><br />This is a demo experience only. Your details stay in this browser session.</span></div>
+                    <div className="lp-demo-notice"><ShieldCheck /> <span><strong>Secure Stripe test checkout — no real payment will be taken.</strong><br />Use test card 4242 4242 4242 4242. Your bag stays saved until payment is confirmed.<br />Stripe test payments are charged in USD at a fixed rate of 1 KWD = 3.25 USD; your order total stays in KWD.</span></div>
+                    {!auth.user && <div className="lp-demo-notice"><span>{language === "ar" ? "ستدفع كزائر؛ لا حاجة لإنشاء حساب." : "You are checking out as a guest; no account needed."} <button type="button" className="lp-text-link" onClick={() => openAccount("login")}>{language === "ar" ? "تسجيل الدخول" : "Login"}</button></span></div>}
+                    {checkout.errorCode && <div className="lp-demo-notice" role="alert"><span>{checkoutError(checkout.errorCode, language)}</span></div>}
                     <label>Full name<input required value={contact.name} onChange={(event) => setContact({ ...contact, name: event.target.value })} placeholder="Your name" autoComplete="name" /></label>
-                    <label>Email address<input required type="email" value={contact.email} onChange={(event) => setContact({ ...contact, email: event.target.value })} placeholder="you@example.com" autoComplete="email" /></label>
+                    <label>Email address<input type="email" required readOnly={!!auth.user} value={auth.user?.email ?? guestEmail} onChange={(event) => setGuestEmail(event.target.value)} placeholder="you@example.com" autoComplete="email" /></label>
                     <label>Delivery address<input required value={contact.address} onChange={(event) => setContact({ ...contact, address: event.target.value })} placeholder="Street and building" autoComplete="street-address" /></label>
                     <div className="lp-form-row">
                       <label>City<input required value={contact.city} onChange={(event) => setContact({ ...contact, city: event.target.value })} placeholder="Kuwait City" autoComplete="address-level2" /></label>
@@ -1076,9 +1095,10 @@ export function LunapawsStorefront() {
                     <div className="lp-checkout-summary">
                       <div><span>Items</span><span>{cartCount}</span></div>
                       <div><span>Delivery</span><span>{subtotal >= 25 ? "On us" : "KWD 1.500"}</span></div>
-                      <div><span>Demo total</span><span>{formatPrice(subtotal + (subtotal >= 25 || subtotal === 0 ? 0 : 1.5))}</span></div>
+                      <div><span>Total</span><span>{formatPrice(subtotal + (subtotal >= 25 || subtotal === 0 ? 0 : 1.5))}</span></div>
+                      <div><span>Test charge (USD)</span><span dir="ltr">{`USD ${(chargeCents / 100).toFixed(2)}`}</span></div>
                     </div>
-                    <button className="lp-button lp-full-button" type="submit">Place demo order <ArrowRight /></button>
+                    <button className="lp-button lp-full-button" type="submit" disabled={checkout.busy}>{checkout.busy ? (language === "ar" ? "جارٍ التحويل إلى الدفع..." : "Redirecting to payment...") : "Pay with Stripe"} <ArrowRight /></button>
                   </form>
                   <button className="lp-back-cart" onClick={() => setPanel("cart")}><ArrowLeft /> Back to your bag</button>
                 </>
@@ -1140,7 +1160,7 @@ export function LunapawsStorefront() {
                       <div className="lp-subtotal"><span>Subtotal</span><span>{formatPrice(subtotal)}</span></div>
                       <small>Delivery calculated at checkout. Free delivery on orders over KWD 25.</small>
                       {unavailableCartItems.length > 0 && <small role="alert">Remove unavailable products before continuing.</small>}
-                      <button className="lp-button lp-full-button" disabled={checkoutBlocked} onClick={() => { setOrderPlaced(false); setPanel("checkout"); }}>Continue to demo checkout <ArrowRight /></button>
+                      <button className="lp-button lp-full-button" disabled={checkoutBlocked} onClick={() => setPanel("checkout")}>Continue to checkout <ArrowRight /></button>
                     </div>
                   </>
                 ) : (

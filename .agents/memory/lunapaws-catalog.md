@@ -14,3 +14,8 @@ Preserve older browser bags and favourites across product-identity changes. The 
 **Why:** The user requires existing shopping functionality to survive the database integration. Discarding old saved references would silently lose selections.
 
 **How to apply:** Keep identity compatibility in mind when renaming seed products or changing identifiers. Resolve saved references where possible; show unavailable items explicitly instead of silently deleting them.
+
+## Stripe test checkout
+- Stripe sandbox cannot charge KWD; the owner chose USD test charges at a fixed 1 KWD = 3.25 USD (orders stay KWD). Live KWD needs a KWD-capable Stripe account.
+- Guest checkout is supported (owner asked); guests own orders via a secret token hash and rate limits; the Stripe return URL points to the Vercel site, so Replit-preview tests must reopen the same query string on the preview origin.
+**Why:** Stripe error "Invalid currency: kwd" on the user's sandbox; owner confirmed the USD approach.

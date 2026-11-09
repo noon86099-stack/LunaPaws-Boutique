@@ -64,3 +64,25 @@ Verification uses temporary, confirmed test accounts with real Supabase
 password authentication and actual user-JWT Data API requests. Never disable
 confirmation or weaken RLS for tests, and delete only those temporary fixtures
 after the tests. Real confirmation email delivery is not proven by fixture tests.
+
+## Stripe test checkout
+
+Test Mode only: functions reject `sk_live_` keys and any non-test session.
+The browser never receives a Stripe key; it redirects to Stripe-hosted Checkout.
+
+Edge Function secrets (Supabase → Edge Functions → Secrets):
+`STRIPE_SECRET_KEY` (sk_test_...), `STRIPE_WEBHOOK_SECRET` (whsec_... of the
+sandbox destination for `checkout.session.completed` pointing to
+`https://<project-ref>.supabase.co/functions/v1/stripe-webhook`), and
+`SITE_URL=https://lunapaws-boutique.vercel.app`.
+
+- `create-checkout-session` (verify_jwt off; it authenticates account tokens itself): accepts a
+  logged-in confirmed user or a guest (email + secret 256-bit token, stored hashed, with rate limits).
+  Prices come from `products`, never the client. Guests read order status only via `get_guest_order`.
+  Migration: `migrations/202611100003_guest_checkout.sql`.
+- `stripe-webhook` (no JWT; verifies the Stripe signature on the raw body): the only
+  path that marks an order `paid`. Replays are idempotent.
+- Orders stay priced in KWD. The Stripe sandbox cannot process KWD, so test charges
+  are converted server-side at a fixed 1 KWD = 3.25 USD and stored on the order.
+- Migrations: `migrations/202611100001_test_checkout.sql`,
+  `migrations/202611100002_usd_test_charge.sql`. Deploy functions from `functions/`.
