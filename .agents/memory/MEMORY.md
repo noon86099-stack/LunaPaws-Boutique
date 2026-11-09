@@ -1,3 +1,4 @@
 - [LUNAPAWS brand](lunapaws-brand.md) — preserve the user-defined premium, cozy cat-accessories identity, audience, slogan, palette, and typography.
 - [Catalog continuity](lunapaws-catalog.md) — use the existing Supabase catalog and KWD pricing; preserve legacy browser bags and favourites when product identities change.
 - [LUNAPAWS accounts](lunapaws-accounts.md) — Supabase Auth is the requested provider; importing old guest favourites must be an explicit account-owner action.
+- [Portable media](portable-media.md) — attached_assets is globally excluded from Git; external builds must use durable public media URLs.

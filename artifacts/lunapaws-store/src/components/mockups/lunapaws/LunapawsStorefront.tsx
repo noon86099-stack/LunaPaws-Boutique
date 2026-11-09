@@ -16,7 +16,6 @@ import {
   Truck,
   X,
 } from "lucide-react";
-import advertisementVideo from "@assets/0_LunaPaws_Ad_1793645838002.mp4";
 import { localizeContent, translateText, type StoreLanguage } from "@/lib/storefront-language";
 import { AddToBagButton } from "@/components/storefront/AddToBagButton";
 import { CatalogState } from "@/components/storefront/CatalogState";
@@ -30,6 +29,7 @@ import { readCart, readFavorites, reconcileCart, reconcileFavorites } from "@/li
 
 type Category = string;
 type Panel = "cart" | "favorites" | "checkout" | null;
+const advertisementVideo = "https://lgelqtrowdobawvjsqag.supabase.co/storage/v1/object/public/lunapaws-media/LunaPaws_Ad.mp4";
 const EMPTY_PRODUCTS: Product[] = [];
 
 const CATEGORIES: { name: Category; image: string; line: string }[] = [
